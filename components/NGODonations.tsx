@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
@@ -58,8 +58,9 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
   const [activeTab, setActiveTab] = useState('warehouse');
   const [deductQuantity, setDeductQuantity] = useState<number>(1);
   const [receiptImage, setReceiptImage] = useState<string>('');
-  const [rejectionReason, setRejectionReason] = useState<string>('');
-  const [proofImage, setProofImage] = useState<string>('');
+  const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({});
+  const [proofImages, setProofImages] = useState<Record<string, string>>({});
+  const [uploadedFileNames, setUploadedFileNames] = useState<Record<string, string>>({});
 
   // Warehouse inventory items  
   const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([
@@ -164,6 +165,11 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
     }
   };
 
+  // Handle rejection reason change
+  const handleRejectionReasonChange = useCallback((donationId: string, value: string) => {
+    setRejectionReasons(prev => ({ ...prev, [donationId]: value }));
+  }, []);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', { 
       month: 'short', 
@@ -217,6 +223,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
   };
 
   const handleDenyDonationRequest = (donation: PendingDonation) => {
+    const rejectionReason = rejectionReasons[donation.id] || '';
     if (!rejectionReason.trim()) {
       toast.error('Please provide reason for rejection');
       return;
@@ -224,11 +231,12 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
 
     setPendingDonations(donations => donations.filter(d => d.id !== donation.id));
     toast.error(`❌ Donation request denied: ${rejectionReason}`);
-    setRejectionReason('');
+    setRejectionReasons(prev => ({ ...prev, [donation.id]: '' }));
   };
 
   // Stage 2: Verify donation (upload proof and mark as verified)
   const handleVerifyDonation = (donation: PendingDonation) => {
+    const proofImage = proofImages[donation.id] || '';
     if (!proofImage.trim()) {
       toast.error('Please upload proof image before verifying');
       return;
@@ -253,7 +261,22 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
     setPendingDonations(donations => donations.filter(d => d.id !== donation.id));
     
     toast.success(`✅ Donation verified and added to warehouse! Receipt generated for ${donation.donorName}`);
-    setProofImage('');
+    setProofImages(prev => ({ ...prev, [donation.id]: '' }));
+    setUploadedFileNames(prev => ({ ...prev, [donation.id]: '' }));
+  };
+
+  // Handle image upload
+  const handleImageUpload = (donationId: string, file: File) => {
+    // In a real app, you would upload to a server/cloud storage
+    // For now, we'll create a mock URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageUrl = e.target?.result as string;
+      setProofImages(prev => ({ ...prev, [donationId]: imageUrl }));
+      setUploadedFileNames(prev => ({ ...prev, [donationId]: file.name }));
+      toast.success('Image uploaded successfully!');
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleGenerateReceipt = (item: WarehouseItem, quantity: number) => {
@@ -403,7 +426,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
     </Card>
   );
 
-  const PendingCard = ({ donation }: { donation: PendingDonation }) => (
+  const PendingCard = useMemo(() => ({ donation }: { donation: PendingDonation }) => (
     <Card className="hover:shadow-md transition-shadow border-orange-200">
       <CardContent className="p-4">
         <div className="flex items-start space-x-3">
@@ -457,9 +480,10 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
                 
                 {/* Rejection Reason for denial */}
                 <Textarea
+                  key={`rejection-${donation.id}-stage1`}
                   placeholder="Reason for rejection (if denying)..."
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
+                  value={rejectionReasons[donation.id] || ''}
+                  onChange={(e) => handleRejectionReasonChange(donation.id, e.target.value)}
                   className="text-xs min-h-[60px]"
                 />
 
@@ -494,23 +518,59 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
                 </p>
                 
                 {/* Proof Image Upload */}
-                <div className="flex items-center space-x-2">
-                  <Input
-                    placeholder="Upload proof image..."
-                    value={proofImage}
-                    onChange={(e) => setProofImage(e.target.value)}
-                    className="flex-1 text-xs"
-                  />
-                  <Button variant="outline" size="sm">
-                    <Camera className="w-3 h-3" />
-                  </Button>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      placeholder="No image selected..."
+                      value={uploadedFileNames[donation.id] || ''}
+                      readOnly
+                      className="flex-1 text-xs"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      type="button"
+                      onClick={() => {
+                        const fileInput = document.getElementById(`file-upload-${donation.id}`) as HTMLInputElement;
+                        fileInput?.click();
+                      }}
+                    >
+                      <Camera className="w-3 h-3" />
+                    </Button>
+                    <input
+                      id={`file-upload-${donation.id}`}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleImageUpload(donation.id, file);
+                          // Clear the input so the same file can be selected again if needed
+                          e.target.value = '';
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </div>
+                  
+                  {/* Show preview if image is uploaded */}
+                  {proofImages[donation.id] && (
+                    <div className="mt-2">
+                      <img
+                        src={proofImages[donation.id]}
+                        alt="Proof of donation"
+                        className="w-full h-32 object-cover rounded-lg border"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Rejection Reason for verification stage */}
                 <Textarea
+                  key={`rejection-${donation.id}-stage2`}
                   placeholder="Reason for rejection (if denying)..."
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
+                  value={rejectionReasons[donation.id] || ''}
+                  onChange={(e) => handleRejectionReasonChange(donation.id, e.target.value)}
                   className="text-xs min-h-[60px]"
                 />
 
@@ -540,7 +600,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
         </div>
       </CardContent>
     </Card>
-  );
+  ), [rejectionReasons, proofImages, uploadedFileNames, handleRejectionReasonChange, handleApproveDonationRequest, handleDenyDonationRequest, handleVerifyDonation, handleImageUpload, getCategoryIcon, formatPickupDate]);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -620,7 +680,9 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
               <div className="space-y-3">
                 {pendingDonations.length > 0 ? (
                   pendingDonations.map((donation) => (
-                    <PendingCard key={donation.id} donation={donation} />
+                    <div key={donation.id}>
+                      {PendingCard({ donation })}
+                    </div>
                   ))
                 ) : (
                   <Card>

@@ -524,28 +524,6 @@ export default function App() {
     toast.success('Donation created successfully!');
   };
 
-  const updateDonationStatus = (donationId: string, status: Donation['status'], note?: string) => {
-    const updatedDonations = donations.map(donation => {
-      if (donation.id === donationId) {
-        const updatedNotes = [...donation.trackingNotes];
-        if (note) updatedNotes.push(note);
-        
-        return {
-          ...donation,
-          status,
-          updatedAt: new Date().toISOString(),
-          trackingNotes: updatedNotes
-        };
-      }
-      return donation;
-    });
-    
-    setDonations(updatedDonations);
-    db.saveDonations(updatedDonations);
-    
-    toast.success(`Donation ${status.replace('-', ' ')}`);
-  };
-
   const logoutUser = () => {
     db.saveCurrentUser(null);
     db.saveSelectedRole(null);
