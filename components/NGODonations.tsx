@@ -335,81 +335,195 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
                     variant="outline" 
                     size="sm" 
                     className="flex-1 text-xs"
-                    disabled={item.availableQuantity === 0}
                   >
-                    <Minus className="w-3 h-3 mr-1" />
-                    Deduct Stock
+                    <User className="w-3 h-3 mr-1" />
+                    Details
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-sm">
                   <DialogHeader>
-                    <DialogTitle>Deduct Stock</DialogTitle>
+                    <DialogTitle>Donation Details</DialogTitle>
                     <DialogDescription>
-                      Remove quantity from warehouse inventory
+                      Complete information about this approved donation
                     </DialogDescription>
                   </DialogHeader>
                   
                   <div className="space-y-4">
-                    <div className="text-center">
-                      <span className="text-3xl">{getCategoryIcon(item.category)}</span>
-                      <h3 className="font-semibold mt-2">{item.foodName}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Available Stock: {item.availableQuantity} {item.units}
-                      </p>
+                    {/* Food Item Header */}
+                    <div className="text-center border-b pb-4">
+                      <span className="text-4xl mb-2 block">{getCategoryIcon(item.category)}</span>
+                      <h3 className="font-bold text-lg">{item.foodName}</h3>
+                      <Badge className={`mt-1 ${
+                        item.status === 'available' 
+                          ? 'bg-green-100 text-green-800 border-green-200'
+                          : item.status === 'low'
+                          ? 'bg-yellow-100 text-yellow-800 border-yellow-200'  
+                          : 'bg-red-100 text-red-800 border-red-200'
+                      }`}>
+                        {item.status}
+                      </Badge>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="deduct-quantity">Quantity to Deduct</Label>
-                      <div className="flex items-center space-x-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setDeductQuantity(Math.max(1, deductQuantity - 1))}
-                        >
-                          <Minus className="w-3 h-3" />
-                        </Button>
-                        <Input
-                          id="deduct-quantity"
-                          type="number"
-                          value={deductQuantity}
-                          onChange={(e) => setDeductQuantity(Math.max(1, Math.min(item.availableQuantity, parseInt(e.target.value) || 1)))}
-                          className="text-center"
-                          min="1"
-                          max={item.availableQuantity}
-                        />
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setDeductQuantity(Math.min(item.availableQuantity, deductQuantity + 1))}
-                        >
-                          <Plus className="w-3 h-3" />
-                        </Button>
+                    {/* Donation Information */}
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <User className="w-4 h-4 text-blue-600" />
+                        <div>
+                          <p className="text-sm font-medium">Donor</p>
+                          <p className="text-xs text-muted-foreground">{item.donorName}</p>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Remaining after deduction: {item.availableQuantity - deductQuantity} {item.units}
-                      </p>
+                      
+                      <div className="flex items-center space-x-3">
+                        <Package className="w-4 h-4 text-green-600" />
+                        <div>
+                          <p className="text-sm font-medium">Quantity</p>
+                          <p className="text-xs text-muted-foreground">
+                            {item.availableQuantity} / {item.totalQuantity} {item.units} available
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <Calendar className="w-4 h-4 text-purple-600" />
+                        <div>
+                          <p className="text-sm font-medium">Date Added</p>
+                          <p className="text-xs text-muted-foreground">{formatDate(item.dateAdded)}</p>
+                        </div>
+                      </div>
+
+                      {item.expirationDate && (
+                        <div className="flex items-center space-x-3">
+                          <AlertTriangle className="w-4 h-4 text-orange-600" />
+                          <div>
+                            <p className="text-sm font-medium">Expiration Date</p>
+                            <p className="text-xs text-muted-foreground">{formatDate(item.expirationDate)}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <div>
+                          <p className="text-sm font-medium">Status</p>
+                          <p className="text-xs text-muted-foreground capitalize">
+                            Verified & Added to Warehouse
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="receipt-note">Distribution Note (Optional)</Label>
-                      <Input
-                        id="receipt-note"
-                        placeholder="e.g., Distributed to families in need..."
-                        value={receiptImage}
-                        onChange={(e) => setReceiptImage(e.target.value)}
-                      />
-                    </div>
+                    {/* Proof Image if available */}
+                    {item.proofImage && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Proof of Receipt</p>
+                        <div className="border rounded-lg overflow-hidden">
+                          <img
+                            src={item.proofImage}
+                            alt="Proof of donation receipt"
+                            className="w-full h-32 object-cover"
+                          />
+                        </div>
+                      </div>
+                    )}
 
-                    <div className="flex space-x-2">
+                    {/* Action Buttons */}
+                    <div className="flex space-x-2 pt-2 border-t">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            disabled={item.availableQuantity === 0}
+                          >
+                            <Minus className="w-3 h-3 mr-1" />
+                            Distribute
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-sm">
+                          <DialogHeader>
+                            <DialogTitle>Distribute Stock</DialogTitle>
+                            <DialogDescription>
+                              Remove quantity for distribution
+                            </DialogDescription>
+                          </DialogHeader>
+                          
+                          <div className="space-y-4">
+                            <div className="text-center">
+                              <span className="text-3xl">{getCategoryIcon(item.category)}</span>
+                              <h3 className="font-semibold mt-2">{item.foodName}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                Available Stock: {item.availableQuantity} {item.units}
+                              </p>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="deduct-quantity">Quantity to Distribute</Label>
+                              <div className="flex items-center space-x-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => setDeductQuantity(Math.max(1, deductQuantity - 1))}
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </Button>
+                                <Input
+                                  id="deduct-quantity"
+                                  type="number"
+                                  value={deductQuantity}
+                                  onChange={(e) => setDeductQuantity(Math.max(1, Math.min(item.availableQuantity, parseInt(e.target.value) || 1)))}
+                                  className="text-center"
+                                  min="1"
+                                  max={item.availableQuantity}
+                                />
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => setDeductQuantity(Math.min(item.availableQuantity, deductQuantity + 1))}
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </Button>
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                Remaining after distribution: {item.availableQuantity - deductQuantity} {item.units}
+                              </p>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="receipt-note">Distribution Note</Label>
+                              <Input
+                                id="receipt-note"
+                                placeholder="e.g., Distributed to families in need..."
+                                value={receiptImage}
+                                onChange={(e) => setReceiptImage(e.target.value)}
+                              />
+                            </div>
+
+                            <div className="flex space-x-2">
+                              <Button 
+                                onClick={() => handleDeductQuantity(item, deductQuantity)}
+                                className="flex-1"
+                              >
+                                Distribute
+                              </Button>
+                              <Button 
+                                onClick={() => handleGenerateReceipt(item, deductQuantity)}
+                                variant="outline"
+                                className="flex-1"
+                              >
+                                <Receipt className="w-3 h-3 mr-1" />
+                                Receipt
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      
                       <Button 
-                        onClick={() => handleDeductQuantity(item, deductQuantity)}
-                        className="flex-1"
-                      >
-                        Deduct Stock
-                      </Button>
-                      <Button 
-                        onClick={() => handleGenerateReceipt(item, deductQuantity)}
+                        onClick={() => handleGenerateReceipt(item, 0)}
                         variant="outline"
+                        size="sm"
                         className="flex-1"
                       >
                         <Receipt className="w-3 h-3 mr-1" />
