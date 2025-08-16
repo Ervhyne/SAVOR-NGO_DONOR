@@ -1,4 +1,82 @@
-**Add your own guidelines here**
+# SAVOR Food Donation App Guidelines
+
+## Two-Stage Donation Approval System
+
+The SAVOR app implements a comprehensive two-stage donation approval process to ensure food safety, accountability, and proper inventory management.
+
+### Stage 1: Initial Approval/Denial
+**Purpose**: NGOs review donation requests and make initial acceptance decisions
+
+**Process**:
+1. Donor submits donation request with details (food type, quantity, pickup date, etc.)
+2. NGO receives notification of new donation request (status: `pending`)
+3. NGO reviews donation details and makes decision:
+   - **Approve**: Move to Stage 2 (status: `approved-pending-verification`)
+   - **Deny**: Provide rejection reason and remove from queue
+
+**UI Guidelines**:
+- Use orange badges for pending approvals
+- Display clear "Stage 1" indicators
+- Provide rejection reason text field
+- Use blue "Approve" button and red "Deny" button
+
+### Stage 2: Verification and Receipt
+**Purpose**: NGOs verify physical receipt of donations with photographic proof
+
+**Process**:
+1. NGO receives the physical donation from donor
+2. NGO takes proof photo of received items
+3. NGO uploads proof image and clicks "Verify & Complete"
+4. Donation is automatically added to warehouse inventory (status: `verified`)
+5. System generates receipt for donor
+
+**UI Guidelines**:
+- Use yellow badges for pending verification
+- Display clear "Stage 2" indicators
+- Require proof image upload before verification
+- Use green "Verify & Complete" button
+- Show camera icon for proof upload
+
+### Status Flow
+```
+pending → approved-pending-verification → verified (added to warehouse)
+pending → rejected (removed from queue)
+approved-pending-verification → rejected (removed from queue)
+```
+
+### Data Management
+- **Pending donations**: Managed in temporary state until verified
+- **Warehouse inventory**: Only verified donations with proof images
+- **Audit trail**: All status changes logged with timestamps
+- **Receipt generation**: Automatic for successfully verified donations
+
+## Design System Guidelines
+
+### Color Coding
+- **Orange**: Pending initial approval (Stage 1)
+- **Yellow**: Pending verification (Stage 2)  
+- **Green**: Verified/completed donations
+- **Red**: Rejected/denied donations
+- **Blue**: Warehouse inventory items
+
+### Button Conventions
+- **Primary Blue**: Approve requests (Stage 1)
+- **Primary Green**: Verify & Complete (Stage 2)
+- **Outline Red**: Deny/Reject
+- **Outline Gray**: Secondary actions
+
+### Mobile-First Approach
+- All donation management screens optimized for mobile devices
+- Touch-friendly button sizes (minimum 44px)
+- Clear visual hierarchy with progressive disclosure
+- Swipe-friendly card layouts
+
+### Testing Considerations
+- Test both approval and denial flows
+- Verify proof image upload functionality
+- Test status transitions and UI state changes
+- Validate warehouse inventory updates
+- Test rejection reason handling
 <!--
 
 System Guidelines

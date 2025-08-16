@@ -66,7 +66,7 @@ export interface Donation {
   pickupDate: string;
   deliveryMethod: 'drop-off' | 'pickup';
   dropOffLocation?: string;
-  status: 'pending' | 'accepted' | 'in-transit' | 'delivered' | 'rejected' | 'submitted' | 'received' | 'distributed';
+  status: 'pending' | 'accepted' | 'in-transit' | 'delivered' | 'rejected' | 'submitted' | 'received' | 'distributed' | 'approved-pending-verification' | 'verified';
   createdAt: string;
   updatedAt: string;
   ngoId?: string;
@@ -601,7 +601,7 @@ export default function App() {
       case 'donor-profile':
         return <DonorProfile user={user} onNavigate={handleNavigation} onUpdateUser={updateUser} onLogout={logoutUser} />;
       case 'ngo-donations':
-        return <NGODonations donations={donations} onNavigate={handleNavigation} onUpdateStatus={updateDonationStatus} />;
+        return <NGODonations onNavigate={handleNavigation} />;
       case 'ngo-stock':
         return <NGOStock onNavigate={handleNavigation} />;
       case 'machine-monitoring':

@@ -12,9 +12,11 @@ A React TypeScript mobile application for connecting food donors with NGOs to re
 - **Smart Tips**: Get helpful donation guidelines and best practices
 
 ### **NGO Features** 
-- **Donation Management**: Review and approve incoming food donations
+- **Two-Stage Donation Management**: 
+  - **Stage 1**: Review and approve/deny incoming donation requests
+  - **Stage 2**: Upload proof images and verify physical receipt of donations
+- **Warehouse Stock Management**: Automated inventory tracking with verified donations
 - **IoT Machine Monitoring**: Real-time tracking of food dispenser machines
-- **Stock Management**: Inventory tracking with low-stock alerts
 - **Volunteer Coordination**: Manage team assignments and schedules
 - **Analytics Dashboard**: Track distribution impact and trends
 
@@ -105,7 +107,10 @@ For testing purposes, you can use these demo accounts:
 
 ### **NGO Interface**
 - 🏠 **Home**: Dashboard with pending approvals and alerts
-- 📦 **Donations**: Review and approve donor submissions
+- 📦 **Donations**: Two-stage donation processing:
+  - **Stage 1**: Approve/deny donation requests from donors
+  - **Stage 2**: Upload proof images and verify receipt of physical donations
+  - **Warehouse**: View and manage verified donation inventory
 - 📊 **Stock**: Manage inventory and IoT machine monitoring
 - 🔔 **Messages**: Communication hub for donor coordination
 - ⚙️ **Settings**: Organization profile and team management

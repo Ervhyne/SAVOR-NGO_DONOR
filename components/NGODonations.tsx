@@ -50,7 +50,7 @@ interface PendingDonation {
   expirationDate?: string;
   description?: string;
   estimatedMeals?: number;
-  status: 'pending';
+  status: 'pending' | 'approved-pending-verification' | 'verified';
 }
 
 
@@ -129,6 +129,19 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
       description: 'Freshly prepared vegetarian meals',
       estimatedMeals: 50,
       status: 'pending'
+    },
+    {
+      id: 'pen003',
+      foodName: 'Fresh Bread',
+      category: 'perishable',
+      quantity: 30,
+      units: 'loaves',
+      donorName: 'Bakery Corner',
+      pickupDate: '2025-08-17T08:00:00',
+      expirationDate: '2025-08-17T18:00:00',
+      description: 'Freshly baked bread loaves',
+      estimatedMeals: 60,
+      status: 'approved-pending-verification'
     }
   ]);
 
@@ -191,9 +204,33 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
     setDeductQuantity(1);
   };
 
-  const handleApproveDonation = (donation: PendingDonation) => {
+  // Stage 1: Approve/Deny donation request
+  const handleApproveDonationRequest = (donation: PendingDonation) => {
+    setPendingDonations(donations => 
+      donations.map(d => 
+        d.id === donation.id 
+          ? { ...d, status: 'approved-pending-verification' as const }
+          : d
+      )
+    );
+    toast.success(`✅ Donation request approved! Now awaiting verification.`);
+  };
+
+  const handleDenyDonationRequest = (donation: PendingDonation) => {
+    if (!rejectionReason.trim()) {
+      toast.error('Please provide reason for rejection');
+      return;
+    }
+
+    setPendingDonations(donations => donations.filter(d => d.id !== donation.id));
+    toast.error(`❌ Donation request denied: ${rejectionReason}`);
+    setRejectionReason('');
+  };
+
+  // Stage 2: Verify donation (upload proof and mark as verified)
+  const handleVerifyDonation = (donation: PendingDonation) => {
     if (!proofImage.trim()) {
-      toast.error('Please upload proof image before approving');
+      toast.error('Please upload proof image before verifying');
       return;
     }
 
@@ -215,20 +252,8 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
     setWarehouseItems(items => [...items, newWarehouseItem]);
     setPendingDonations(donations => donations.filter(d => d.id !== donation.id));
     
-    // Generate receipt for donor
-    toast.success(`✅ Donation approved! Receipt generated for ${donation.donorName}`);
+    toast.success(`✅ Donation verified and added to warehouse! Receipt generated for ${donation.donorName}`);
     setProofImage('');
-  };
-
-  const handleRejectDonation = (donation: PendingDonation) => {
-    if (!rejectionReason.trim()) {
-      toast.error('Please provide reason for rejection');
-      return;
-    }
-
-    setPendingDonations(donations => donations.filter(d => d.id !== donation.id));
-    toast.error(`❌ Donation rejected: ${rejectionReason}`);
-    setRejectionReason('');
   };
 
   const handleGenerateReceipt = (item: WarehouseItem, quantity: number) => {
@@ -388,8 +413,12 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
           <div className="flex-1">
             <div className="flex items-start justify-between mb-2">
               <h4 className="font-medium text-sm">{donation.foodName}</h4>
-              <Badge className="text-xs bg-orange-100 text-orange-800 border-orange-200">
-                Awaiting Verification
+              <Badge className={`text-xs ${
+                donation.status === 'pending' 
+                  ? 'bg-orange-100 text-orange-800 border-orange-200'
+                  : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+              }`}>
+                {donation.status === 'pending' ? 'Pending Approval' : 'Awaiting Verification'}
               </Badge>
             </div>
             
@@ -419,49 +448,94 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
               </p>
             )}
 
-            <div className="space-y-2">
-              {/* Proof Image Upload */}
-              <div className="flex items-center space-x-2">
-                <Input
-                  placeholder="Upload proof image..."
-                  value={proofImage}
-                  onChange={(e) => setProofImage(e.target.value)}
-                  className="flex-1 text-xs"
+            {/* Stage 1: Initial Approval/Denial */}
+            {donation.status === 'pending' && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-gray-700 mb-2">
+                  Stage 1: Approve or deny this donation request
+                </p>
+                
+                {/* Rejection Reason for denial */}
+                <Textarea
+                  placeholder="Reason for rejection (if denying)..."
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  className="text-xs min-h-[60px]"
                 />
-                <Button variant="outline" size="sm">
-                  <Camera className="w-3 h-3" />
-                </Button>
-              </div>
 
-              {/* Rejection Reason */}
-              <Textarea
-                placeholder="Reason for rejection (if denying)..."
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                className="text-xs min-h-[60px]"
-              />
-
-              {/* Action Buttons */}
-              <div className="flex space-x-2">
-                <Button 
-                  onClick={() => handleApproveDonation(donation)}
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-xs flex-1"
-                >
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Verify & Approve
-                </Button>
-                <Button 
-                  onClick={() => handleRejectDonation(donation)}
-                  variant="outline"
-                  size="sm"
-                  className="text-red-600 border-red-200 hover:bg-red-50 text-xs flex-1"
-                >
-                  <XCircle className="w-3 h-3 mr-1" />
-                  Deny
-                </Button>
+                {/* Stage 1 Action Buttons */}
+                <div className="flex space-x-2">
+                  <Button 
+                    onClick={() => handleApproveDonationRequest(donation)}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-xs flex-1"
+                  >
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Approve
+                  </Button>
+                  <Button 
+                    onClick={() => handleDenyDonationRequest(donation)}
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 border-red-200 hover:bg-red-50 text-xs flex-1"
+                  >
+                    <XCircle className="w-3 h-3 mr-1" />
+                    Deny
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Stage 2: Verification */}
+            {donation.status === 'approved-pending-verification' && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-gray-700 mb-2">
+                  Stage 2: Upload proof image and verify receipt
+                </p>
+                
+                {/* Proof Image Upload */}
+                <div className="flex items-center space-x-2">
+                  <Input
+                    placeholder="Upload proof image..."
+                    value={proofImage}
+                    onChange={(e) => setProofImage(e.target.value)}
+                    className="flex-1 text-xs"
+                  />
+                  <Button variant="outline" size="sm">
+                    <Camera className="w-3 h-3" />
+                  </Button>
+                </div>
+
+                {/* Rejection Reason for verification stage */}
+                <Textarea
+                  placeholder="Reason for rejection (if denying)..."
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  className="text-xs min-h-[60px]"
+                />
+
+                {/* Stage 2 Action Buttons */}
+                <div className="flex space-x-2">
+                  <Button 
+                    onClick={() => handleVerifyDonation(donation)}
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-xs flex-1"
+                  >
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Verify & Complete
+                  </Button>
+                  <Button 
+                    onClick={() => handleDenyDonationRequest(donation)}
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 border-red-200 hover:bg-red-50 text-xs flex-1"
+                  >
+                    <XCircle className="w-3 h-3 mr-1" />
+                    Deny
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
@@ -538,8 +612,8 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
               <div className="mb-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
                 <p className="text-sm text-orange-800">
                   <Clock className="w-4 h-4 inline mr-1" />
-                  {pendingDonations.length} donations awaiting verification. 
-                  Upload proof images and approve to add to warehouse.
+                  {pendingDonations.filter(d => d.status === 'pending').length} donations awaiting approval, 
+                  {pendingDonations.filter(d => d.status === 'approved-pending-verification').length} awaiting verification.
                 </p>
               </div>
 
@@ -552,9 +626,9 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
                   <Card>
                     <CardContent className="text-center py-12">
                       <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">All donations verified</h3>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">All donations processed</h3>
                       <p className="text-muted-foreground">
-                        New donation requests will appear here for verification
+                        New donation requests will appear here for approval and verification
                       </p>
                     </CardContent>
                   </Card>
