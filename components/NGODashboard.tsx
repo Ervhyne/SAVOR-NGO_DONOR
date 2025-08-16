@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { CheckCircle, XCircle, Clock, Package, AlertTriangle, Eye, MapPin, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from './ui/dialog';
+import { CheckCircle, XCircle, Clock, Package, AlertTriangle, Eye, MapPin, Calendar, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage, User, Donation, StockItem } from '../App';
 
@@ -16,6 +16,47 @@ interface NGODashboardProps {
 
 export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODashboardProps) {
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
+  const [showPostDonation, setShowPostDonation] = useState(false);
+  const [donationForm, setDonationForm] = useState({
+    foodName: '',
+    description: '',
+    quantity: '',
+    units: '',
+    expirationDate: '',
+    category: 'packaged' as const,
+    targetMachine: ''
+  });
+
+  // Mock machine data (in real app, this would come from props or API)
+  const machines = [
+    {
+      id: 'dispenser-001',
+      name: 'Downtown Dispenser #1',
+      location: 'Main Street Plaza',
+      status: 'online' as const,
+      stockLevel: 85,
+      foodAmount: 34,
+      maxCapacity: 40
+    },
+    {
+      id: 'dispenser-002',
+      name: 'Community Center #2',
+      location: 'Oak Avenue Center',
+      status: 'online' as const,
+      stockLevel: 23,
+      foodAmount: 9,
+      maxCapacity: 40
+    },
+    {
+      id: 'dispenser-003',
+      name: 'Park Entrance #3',
+      location: 'Central Park East',
+      status: 'offline' as const,
+      stockLevel: 67,
+      foodAmount: 27,
+      maxCapacity: 40
+    }
+  ];
   
   // Filter donations for this NGO
   const ngoDonations = donations.filter(d => d.ngoId === user.id || d.status === 'pending');
@@ -56,6 +97,39 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
     // In real app, this would update the database
     toast.success('Donation rejected. Donor has been notified.');
     setSelectedDonation(null);
+  };
+
+  const handlePostDonation = () => {
+    setShowPostDonation(true);
+  };
+
+  const handleDonationSubmit = () => {
+    if (!donationForm.foodName || !donationForm.quantity || !donationForm.targetMachine) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    const targetMachine = machines.find(m => m.id === donationForm.targetMachine);
+    if (!targetMachine) {
+      toast.error('Please select a valid machine');
+      return;
+    }
+
+    toast.success(`Food item "${donationForm.foodName}" posted to ${targetMachine.name}`, {
+      description: `${donationForm.quantity} ${donationForm.units} available for distribution`,
+      duration: 4000,
+    });
+
+    setDonationForm({
+      foodName: '',
+      description: '',
+      quantity: '',
+      units: '',
+      expirationDate: '',
+      category: 'packaged',
+      targetMachine: ''
+    });
+    setShowPostDonation(false);
   };
 
   const DonationDetailModal = ({ donation }: { donation: Donation }) => (
@@ -199,10 +273,10 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
 
           <div className="grid grid-cols-2 gap-3">
             <Button 
-              onClick={() => onNavigate('ngo-stock')}
+              onClick={handlePostDonation}
               className="h-12 bg-green-600 hover:bg-green-700"
             >
-              <Package className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2" />
               Post Food
             </Button>
             <Button 
@@ -373,6 +447,153 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
           </Card>
         </div>
       </div>
+
+      {/* Post Donation Modal */}
+      {showPostDonation && (
+        <Dialog open={showPostDonation} onOpenChange={setShowPostDonation}>
+          <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Post Food to Machine</DialogTitle>
+              <DialogDescription>
+                Add available food items to dispensers for community access
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Food Name *
+                </label>
+                <input
+                  type="text"
+                  value={donationForm.foodName}
+                  onChange={(e) => setDonationForm({...donationForm, foodName: e.target.value})}
+                  placeholder="e.g., Fresh Sandwiches, Canned Soup"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={donationForm.description}
+                  onChange={(e) => setDonationForm({...donationForm, description: e.target.value})}
+                  placeholder="Brief description of the food items..."
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
+                    Quantity *
+                  </label>
+                  <input
+                    type="number"
+                    value={donationForm.quantity}
+                    onChange={(e) => setDonationForm({...donationForm, quantity: e.target.value})}
+                    placeholder="10"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
+                    Units
+                  </label>
+                  <select
+                    value={donationForm.units}
+                    onChange={(e) => setDonationForm({...donationForm, units: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="">Select unit</option>
+                    <option value="pieces">pieces</option>
+                    <option value="servings">servings</option>
+                    <option value="boxes">boxes</option>
+                    <option value="cans">cans</option>
+                    <option value="kg">kg</option>
+                    <option value="lbs">lbs</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Category
+                </label>
+                <select
+                  value={donationForm.category}
+                  onChange={(e) => setDonationForm({...donationForm, category: e.target.value as any})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="packaged">Packaged Food</option>
+                  <option value="perishable">Perishable</option>
+                  <option value="non-perishable">Non-Perishable</option>
+                  <option value="cooked">Cooked Meals</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Target Machine *
+                </label>
+                <select
+                  value={donationForm.targetMachine}
+                  onChange={(e) => setDonationForm({...donationForm, targetMachine: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Select a machine</option>
+                  {machines
+                    .filter(m => m.status === 'online' && m.stockLevel < 90)
+                    .map(machine => (
+                      <option key={machine.id} value={machine.id}>
+                        {machine.name} - {machine.location} ({machine.foodAmount}/{machine.maxCapacity} items)
+                      </option>
+                    ))
+                  }
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Expiration Date
+                </label>
+                <input
+                  type="date"
+                  value={donationForm.expirationDate}
+                  onChange={(e) => setDonationForm({...donationForm, expirationDate: e.target.value})}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div className="bg-green-50 p-3 rounded-md">
+                <p className="text-sm text-green-700">
+                  <Package className="w-4 h-4 inline mr-2" />
+                  Food items will be available for community members to access through the selected dispenser.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowPostDonation(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleDonationSubmit}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  Post Food Item
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

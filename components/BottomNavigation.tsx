@@ -1,5 +1,5 @@
 import { Button } from './ui/button';
-import { Home, Plus, History, User, Package, BarChart3, Settings, Bell } from 'lucide-react';
+import { Home, Plus, History, User, Package, Settings, Bell } from 'lucide-react';
 import type { AppPage, UserRole } from '../App';
 
 interface BottomNavigationProps {
@@ -20,8 +20,6 @@ export function BottomNavigation({ currentPage, userRole, onNavigate }: BottomNa
   const ngoNavItems = [
     { page: 'ngo-dashboard' as AppPage, icon: Home, label: 'Home' },
     { page: 'ngo-donations' as AppPage, icon: Package, label: 'Donations' },
-    { page: 'ngo-stock' as AppPage, icon: BarChart3, label: 'Stock' },
-    { page: 'notifications' as AppPage, icon: Bell, label: 'Updates' },
     { page: 'ngo-profile' as AppPage, icon: Settings, label: 'Settings' },
   ];
 
@@ -30,7 +28,7 @@ export function BottomNavigation({ currentPage, userRole, onNavigate }: BottomNa
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-pb">
       <div className="max-w-md mx-auto">
-        <div className="grid grid-cols-5 gap-1">
+        <div className="grid grid-cols-3 gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPage === item.page;
