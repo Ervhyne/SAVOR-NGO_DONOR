@@ -1,5 +1,5 @@
 import { Button } from './ui/button';
-import { Home, Plus, History, User, Package, Package2, Settings, Bell } from 'lucide-react';
+import { Home, Plus, History, User, Package, Package2, Settings, Bell, Monitor } from 'lucide-react';
 import type { AppPage, UserRole } from '../App';
 
 interface BottomNavigationProps {
@@ -21,11 +21,12 @@ export function BottomNavigation({ currentPage, userRole, onNavigate }: BottomNa
     { page: 'ngo-dashboard' as AppPage, icon: Home, label: 'Home' },
     { page: 'ngo-donations' as AppPage, icon: Package, label: 'Donations' },
     { page: 'donation-marketplace' as AppPage, icon: Package2, label: 'Marketplace' },
+    { page: 'machine-monitoring' as AppPage, icon: Monitor, label: 'Machines' },
     { page: 'ngo-profile' as AppPage, icon: Settings, label: 'Settings' },
   ];
 
   const navItems = userRole === 'donor' ? donorNavItems : ngoNavItems;
-  const gridCols = userRole === 'donor' ? 'grid-cols-5' : 'grid-cols-4';
+  const gridCols = userRole === 'donor' ? 'grid-cols-5' : 'grid-cols-5';
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-pb">

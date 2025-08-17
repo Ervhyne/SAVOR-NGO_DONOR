@@ -231,8 +231,7 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
         <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-xl font-semibold">NGO Dashboard</h1>
-              <p className="text-blue-100">{user.organizationName || user.name}</p>
+              <h1 className="text-xl font-semibold">Dashboard</h1>
             </div>
             <div className="flex items-center space-x-3">
               <Button
@@ -250,9 +249,6 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
                   </span>
                 )}
               </Button>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <Package className="w-6 h-6" />
-              </div>
             </div>
           </div>
 
