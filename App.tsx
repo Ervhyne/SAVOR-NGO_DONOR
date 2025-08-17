@@ -16,6 +16,7 @@ import { NGODonations } from './components/NGODonations';
 import { NGOStock } from './components/NGOStock';
 import { NGOVolunteers } from './components/NGOVolunteers';
 import { NGOProfile } from './components/NGOProfile';
+import { DonationMarketplace } from './components/DonationMarketplace';
 import { Notifications } from './components/Notifications';
 import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner';
@@ -121,6 +122,7 @@ export type AppPage =
   | 'post-donation'
   | 'donation-history'
   | 'donation-tracking'
+  | 'donation-marketplace'
   | 'settings'
   | 'donor-profile'
   | 'ngo-donations'
@@ -580,6 +582,8 @@ export default function App() {
         return <DonorProfile user={user} onNavigate={handleNavigation} onUpdateUser={updateUser} onLogout={logoutUser} />;
       case 'ngo-donations':
         return <NGODonations onNavigate={handleNavigation} />;
+      case 'donation-marketplace':
+        return <DonationMarketplace onNavigate={handleNavigation} />;
       case 'ngo-stock':
         return <NGOStock onNavigate={handleNavigation} />;
       case 'machine-monitoring':

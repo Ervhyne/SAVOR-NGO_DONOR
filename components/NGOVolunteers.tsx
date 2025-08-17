@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { ArrowLeft, Search, Users, Plus, Phone, Mail, Clock, MapPin, User } from 'lucide-react';
+import { ArrowLeft, Search, Users, Plus, Phone, Mail, Clock, User } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage, Volunteer, Donation } from '../App';
 
@@ -17,7 +17,6 @@ interface NGOVolunteersProps {
 export function NGOVolunteers({ volunteers, donations, onNavigate }: NGOVolunteersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
 
   const getStatusColor = (status: Volunteer['status']) => {
     switch (status) {
@@ -57,7 +56,7 @@ export function NGOVolunteers({ volunteers, donations, onNavigate }: NGOVoluntee
   const busyVolunteers = volunteers.filter(v => v.status === 'busy');
   const activePickups = donations.filter(d => d.status === 'accepted' || d.status === 'in-transit');
 
-  const handleAssignTask = (volunteerId: string, donationId: string) => {
+  const handleAssignTask = () => {
     // In a real app, this would update the database
     toast.success('Task assigned to volunteer');
   };
@@ -125,7 +124,7 @@ export function NGOVolunteers({ volunteers, donations, onNavigate }: NGOVoluntee
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setSelectedVolunteer(volunteer)}
+                    onClick={() => toast.success('Assignment dialog would open here')}
                     className="text-xs"
                   >
                     Assign
@@ -157,7 +156,7 @@ export function NGOVolunteers({ volunteers, donations, onNavigate }: NGOVoluntee
                                 </div>
                                 <Button
                                   size="sm"
-                                  onClick={() => handleAssignTask(volunteer.id, donation.id)}
+                                  onClick={() => handleAssignTask()}
                                   className="text-xs"
                                 >
                                   Assign
