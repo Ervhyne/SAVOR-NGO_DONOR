@@ -61,7 +61,6 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
   // Filter donations for this NGO
   const ngoDonations = donations.filter(d => d.ngoId === user.id || d.status === 'pending' || d.status === 'approved-pending-verification');
   const pendingDonations = ngoDonations.filter(d => d.status === 'pending' || d.status === 'approved-pending-verification');
-  const approvedDonations = ngoDonations.filter(d => d.status === 'accepted' || d.status === 'verified');
   const deliveredDonations = ngoDonations.filter(d => d.status === 'delivered' || d.status === 'distributed');
 
   // Stock alerts
@@ -252,25 +251,39 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
             </div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4">
+          {/* Critical Dashboard Metrics */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Urgent Actions Required */}
+            <div className="bg-red-500/20 rounded-lg p-3 text-center border border-red-300">
+              <div className="text-2xl font-bold text-red-200">{pendingDonations.length + expiredItems.length}</div>
+              <div className="text-xs text-red-100">Urgent Actions</div>
+            </div>
+            {/* Active Machine Alerts */}
+            <div className="bg-orange-500/20 rounded-lg p-3 text-center border border-orange-300">
+              <div className="text-2xl font-bold text-orange-200">3</div>
+              <div className="text-xs text-orange-100">Machine Alerts</div>
+            </div>
+          </div>
+
+          {/* Key Performance Indicators */}
+          <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/10 rounded-lg p-3 text-center">
-              <div className="text-2xl font-bold">{pendingDonations.length}</div>
-              <div className="text-sm text-blue-100">Pending</div>
+              <div className="text-xl font-bold">{stockItems.reduce((sum, item) => sum + item.quantity, 0)}</div>
+              <div className="text-xs text-blue-100">Items in Stock</div>
             </div>
             <div className="bg-white/10 rounded-lg p-3 text-center">
-              <div className="text-2xl font-bold">{approvedDonations.length}</div>
-              <div className="text-sm text-blue-100">Approved</div>
+              <div className="text-xl font-bold">2</div>
+              <div className="text-xs text-blue-100">Machines Online</div>
             </div>
             <div className="bg-white/10 rounded-lg p-3 text-center">
-              <div className="text-2xl font-bold">{deliveredDonations.length}</div>
-              <div className="text-sm text-blue-100">Delivered</div>
+              <div className="text-xl font-bold">{deliveredDonations.length * 3}</div>
+              <div className="text-xs text-blue-100">Meals Served</div>
             </div>
           </div>
         </div>
 
         <div className="p-4 space-y-6">
-          {/* Quick Actions */}
+          {/* Action Buttons - Positioned above Critical Alerts */}
           <div className="grid grid-cols-2 gap-3">
             <Button 
               onClick={() => onNavigate('ngo-donations')}
@@ -289,7 +302,7 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 mb-6">
             <Button 
               onClick={handlePostDonation}
               className="h-12 bg-green-600 hover:bg-green-700"
@@ -313,65 +326,89 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
               )}
             </Button>
           </div>
-
-          {/* Alerts */}
+          {/* Critical Alerts - Show immediately actionable items */}
           {(pendingDonations.length > 0 || lowStockItems.length > 0 || expiredItems.length > 0) && (
-            <Card className="border-orange-200 bg-orange-50">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center text-base text-orange-800">
-                  <AlertTriangle className="w-4 h-4 mr-2" />
-                  Alerts & Actions Needed
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center mb-3">
+                <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+                <h3 className="font-semibold text-red-800">Requires Immediate Attention</h3>
+              </div>
+              <div className="space-y-2">
                 {pendingDonations.length > 0 && (
-                  <div className="p-2 bg-white rounded-lg">
-                    <p className="text-sm font-medium text-orange-800">
-                      {pendingDonations.length} donation{pendingDonations.length > 1 ? 's' : ''} awaiting review
-                    </p>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-orange-700 p-0 h-auto"
-                      onClick={() => onNavigate('ngo-donations')}
-                    >
-                      Review now →
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-red-700">🔴 {pendingDonations.length} donations need approval</span>
+                    <Button size="sm" variant="outline" onClick={() => onNavigate('ngo-donations')} className="text-xs">
+                      Review Now
                     </Button>
                   </div>
                 )}
                 {lowStockItems.length > 0 && (
-                  <div className="p-2 bg-white rounded-lg">
-                    <p className="text-sm font-medium text-orange-800">
-                      {lowStockItems.length} item{lowStockItems.length > 1 ? 's' : ''} running low
-                    </p>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-orange-700 p-0 h-auto"
-                      onClick={() => onNavigate('ngo-stock')}
-                    >
-                      Check stock →
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-orange-700">🟡 {lowStockItems.length} items running low</span>
+                    <Button size="sm" variant="outline" onClick={() => onNavigate('ngo-donations')} className="text-xs">
+                      Check Stock
                     </Button>
                   </div>
                 )}
                 {expiredItems.length > 0 && (
-                  <div className="p-2 bg-white rounded-lg">
-                    <p className="text-sm font-medium text-red-800">
-                      {expiredItems.length} expired item{expiredItems.length > 1 ? 's' : ''} to remove
-                    </p>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-red-700 p-0 h-auto"
-                      onClick={() => onNavigate('ngo-stock')}
-                    >
-                      Remove items →
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-red-700">⚠️ {expiredItems.length} items expired</span>
+                    <Button size="sm" variant="outline" onClick={() => onNavigate('ngo-donations')} className="text-xs">
+                      Remove Items
                     </Button>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-orange-700">🔧 3 machines need attention</span>
+                  <Button size="sm" variant="outline" onClick={() => onNavigate('machine-monitoring')} className="text-xs">
+                    Check Machines
+                  </Button>
+                </div>
+              </div>
+            </div>
           )}
+
+          {/* Today's Impact Summary */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h3 className="font-semibold text-green-800 mb-3 flex items-center">
+              <CheckCircle className="w-5 h-5 mr-2" />
+              Today's Impact
+            </h3>
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-green-700">{deliveredDonations.length * 3}</div>
+                <div className="text-xs text-green-600">People Fed</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-700">12</div>
+                <div className="text-xs text-green-600">Items Distributed</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Overview - Recent Activity */}
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-base text-blue-800">
+                <Clock className="w-4 h-4 mr-2" />
+                Recent Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-sm text-blue-700">
+                • {pendingDonations.length > 0 ? `${pendingDonations.length} new donations received` : 'All donations processed ✓'}
+              </div>
+              <div className="text-sm text-blue-700">
+                • {stockItems.filter(item => item.quantity > 10).length} items well-stocked
+              </div>
+              <div className="text-sm text-blue-700">
+                • Last distribution: 2 hours ago
+              </div>
+              <div className="text-sm text-blue-700">
+                • Marketplace: {Math.floor(Math.random() * 15) + 5} active listings
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Pending Donations */}
           <Card>
