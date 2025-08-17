@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from './ui/dialog';
-import { CheckCircle, XCircle, Clock, Package, AlertTriangle, Eye, MapPin, Calendar, Plus } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Package, AlertTriangle, Eye, MapPin, Calendar, Plus, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage, User, Donation, StockItem } from '../App';
 
@@ -59,14 +59,19 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
   ];
   
   // Filter donations for this NGO
-  const ngoDonations = donations.filter(d => d.ngoId === user.id || d.status === 'pending');
-  const pendingDonations = ngoDonations.filter(d => d.status === 'pending');
-  const approvedDonations = ngoDonations.filter(d => d.status === 'accepted');
-  const deliveredDonations = ngoDonations.filter(d => d.status === 'delivered');
+  const ngoDonations = donations.filter(d => d.ngoId === user.id || d.status === 'pending' || d.status === 'approved-pending-verification');
+  const pendingDonations = ngoDonations.filter(d => d.status === 'pending' || d.status === 'approved-pending-verification');
+  const approvedDonations = ngoDonations.filter(d => d.status === 'accepted' || d.status === 'verified');
+  const deliveredDonations = ngoDonations.filter(d => d.status === 'delivered' || d.status === 'distributed');
 
   // Stock alerts
   const lowStockItems = stockItems.filter(item => item.status === 'low');
   const expiredItems = stockItems.filter(item => item.status === 'expired');
+
+  // Memoize notification count to prevent flickering
+  const totalNotifications = useMemo(() => {
+    return lowStockItems.length + expiredItems.length + pendingDonations.length;
+  }, [lowStockItems.length, expiredItems.length, pendingDonations.length]);
 
   const getStatusColor = (status: Donation['status']) => {
     switch (status) {
@@ -229,8 +234,25 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
               <h1 className="text-xl font-semibold">NGO Dashboard</h1>
               <p className="text-blue-100">{user.organizationName || user.name}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <Package className="w-6 h-6" />
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onNavigate('notifications')}
+                className="relative w-10 h-10 bg-white/20 rounded-full hover:bg-white/30 p-0"
+                key="notifications-header"
+              >
+                <Bell className="w-5 h-5" />
+                {/* Notification badge - show if there are alerts */}
+                {totalNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold">
+                    {totalNotifications}
+                  </span>
+                )}
+              </Button>
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                <Package className="w-6 h-6" />
+              </div>
             </div>
           </div>
 
@@ -281,11 +303,18 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
             </Button>
             <Button 
               variant="outline"
-              onClick={() => onNavigate('ngo-stock')}
-              className="h-12"
+              onClick={() => onNavigate('notifications')}
+              className="h-12 relative"
+              key="notifications-action"
             >
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              Stock Alerts
+              <Bell className="w-4 h-4 mr-2" />
+              Notifications
+              {/* Notification badge */}
+              {totalNotifications > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                  {totalNotifications}
+                </span>
+              )}
             </Button>
           </div>
 
@@ -508,12 +537,10 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
                     <option value="">Select unit</option>
+                    <option value="pcs">pcs</option>
                     <option value="pieces">pieces</option>
                     <option value="servings">servings</option>
                     <option value="boxes">boxes</option>
-                    <option value="cans">cans</option>
-                    <option value="kg">kg</option>
-                    <option value="lbs">lbs</option>
                   </select>
                 </div>
               </div>

@@ -2,7 +2,7 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { ArrowLeft, Bell, CheckCircle, Truck, Heart } from 'lucide-react';
-import type { AppPage } from '../App';
+import type { AppPage, User } from '../App';
 
 interface NotificationsProps {
   notifications: Array<{
@@ -12,11 +12,12 @@ interface NotificationsProps {
     date: string;
     read: boolean;
   }>;
+  user?: User;
   onNavigate: (page: AppPage) => void;
   onMarkAsRead: (id: string) => void;
 }
 
-export function Notifications({ notifications, onNavigate, onMarkAsRead }: NotificationsProps) {
+export function Notifications({ notifications, user, onNavigate, onMarkAsRead }: NotificationsProps) {
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -29,6 +30,14 @@ export function Notifications({ notifications, onNavigate, onMarkAsRead }: Notif
     } else {
       return `${Math.floor(diffInMinutes / 1440)}d ago`;
     }
+  };
+
+  // Determine the correct dashboard to navigate back to
+  const getBackNavigation = (): AppPage => {
+    if (user?.role === 'ngo') {
+      return 'ngo-dashboard';
+    }
+    return 'donor-dashboard';
   };
 
   const getNotificationIcon = (title: string) => {
@@ -61,7 +70,7 @@ export function Notifications({ notifications, onNavigate, onMarkAsRead }: Notif
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => onNavigate('donor-dashboard')}
+              onClick={() => onNavigate(getBackNavigation())}
               className="mr-2 p-2"
             >
               <ArrowLeft className="w-4 h-4" />

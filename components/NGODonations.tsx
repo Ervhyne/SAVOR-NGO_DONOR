@@ -20,7 +20,7 @@ import {
   Receipt,
   Camera,
   AlertTriangle,
-  Warehouse
+  Package2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage } from '../App';
@@ -61,6 +61,43 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
   const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({});
   const [proofImages, setProofImages] = useState<Record<string, string>>({});
   const [uploadedFileNames, setUploadedFileNames] = useState<Record<string, string>>({});
+  
+  // Marketplace posting state
+  const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
+  const [selectedItemForPost, setSelectedItemForPost] = useState<WarehouseItem | null>(null);
+  const [postForm, setPostForm] = useState({
+    machine: '',
+    amount: '',
+    description: ''
+  });
+
+  // Mock machine data
+  const machines = [
+    {
+      id: 'dispenser-001',
+      name: 'Downtown Dispenser #1',
+      location: 'Main Street Plaza',
+      status: 'online' as const,
+      stockLevel: 85,
+      maxCapacity: 40
+    },
+    {
+      id: 'dispenser-002', 
+      name: 'Community Center #2',
+      location: 'Oak Avenue Center',
+      status: 'online' as const,
+      stockLevel: 23,
+      maxCapacity: 40
+    },
+    {
+      id: 'dispenser-003',
+      name: 'University Campus #3',
+      location: 'Campus Food Court',
+      status: 'offline' as const,
+      stockLevel: 0,
+      maxCapacity: 40
+    }
+  ];
 
   // Warehouse inventory items  
   const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([
@@ -70,7 +107,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
       category: 'perishable',
       totalQuantity: 50,
       availableQuantity: 32,
-      units: 'kg',
+      units: 'pcs',
       expirationDate: '2025-08-20',
       donorName: 'Green Garden Restaurant',
       dateAdded: '2025-08-14',
@@ -83,7 +120,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
       category: 'non-perishable',
       totalQuantity: 100,
       availableQuantity: 15,
-      units: 'cans',
+      units: 'pcs',
       donorName: 'City Supermarket',
       dateAdded: '2025-08-10',
       status: 'low',
@@ -95,7 +132,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
       category: 'perishable', 
       totalQuantity: 25,
       availableQuantity: 25,
-      units: 'loaves',
+      units: 'pcs',
       expirationDate: '2025-08-17',
       donorName: 'Local Bakery',
       dateAdded: '2025-08-15',
@@ -111,7 +148,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
       foodName: 'Rice Bags',
       category: 'non-perishable',
       quantity: 20,
-      units: 'kg',
+      units: 'pcs',
       donorName: 'Community Center',
       pickupDate: '2025-08-16T10:00:00',
       description: 'High quality basmati rice, sealed bags',
@@ -123,7 +160,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
       foodName: 'Cooked Meals',
       category: 'cooked',
       quantity: 50,
-      units: 'portions',
+      units: 'pcs',
       donorName: 'Hotel Paradise',
       pickupDate: '2025-08-16T14:30:00',
       expirationDate: '2025-08-16T20:00:00',
@@ -136,7 +173,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
       foodName: 'Fresh Bread',
       category: 'perishable',
       quantity: 30,
-      units: 'loaves',
+      units: 'pcs',
       donorName: 'Bakery Corner',
       pickupDate: '2025-08-17T08:00:00',
       expirationDate: '2025-08-17T18:00:00',
@@ -260,7 +297,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
     setWarehouseItems(items => [...items, newWarehouseItem]);
     setPendingDonations(donations => donations.filter(d => d.id !== donation.id));
     
-    toast.success(`✅ Donation verified and added to warehouse! Receipt generated for ${donation.donorName}`);
+    toast.success(`✅ Donation verified and added to donations stock! Receipt generated for ${donation.donorName}`);
     setProofImages(prev => ({ ...prev, [donation.id]: '' }));
     setUploadedFileNames(prev => ({ ...prev, [donation.id]: '' }));
   };
@@ -290,6 +327,72 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
     
     toast.success(`📄 Receipt generated for ${quantity} ${item.units} of ${item.foodName}`);
     console.log('Receipt data:', receiptData);
+  };
+
+  const handleOpenPostDialog = (item: WarehouseItem) => {
+    setSelectedItemForPost(item);
+    setPostForm({
+      machine: '',
+      amount: '',
+      description: ''
+    });
+    setIsPostDialogOpen(true);
+  };
+
+  const handlePostToMarketplace = () => {
+    if (!selectedItemForPost) return;
+    
+    if (!postForm.machine || !postForm.amount || !postForm.description) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    const amount = parseInt(postForm.amount);
+    if (amount <= 0 || amount > selectedItemForPost.availableQuantity) {
+      toast.error(`Amount must be between 1 and ${selectedItemForPost.availableQuantity}`);
+      return;
+    }
+
+    const selectedMachine = machines.find(m => m.id === postForm.machine);
+    if (!selectedMachine) {
+      toast.error('Please select a valid machine');
+      return;
+    }
+
+    // Create new pending donation entry
+    const newPendingDonation: PendingDonation = {
+      id: `mp${Date.now()}`,
+      foodName: selectedItemForPost.foodName,
+      category: selectedItemForPost.category,
+      quantity: amount,
+      units: selectedItemForPost.units,
+      donorName: `Posted to ${selectedMachine.name}`,
+      pickupDate: new Date().toISOString(),
+      expirationDate: selectedItemForPost.expirationDate,
+      description: postForm.description,
+      estimatedMeals: amount,
+      status: 'pending'
+    };
+
+    // Add to pending donations
+    setPendingDonations(prev => [newPendingDonation, ...prev]);
+
+    // Reduce available quantity from warehouse
+    setWarehouseItems(prev => 
+      prev.map(item => 
+        item.id === selectedItemForPost.id
+          ? {
+              ...item,
+              availableQuantity: item.availableQuantity - amount,
+              status: item.availableQuantity - amount <= 5 ? 'low' : item.status
+            }
+          : item
+      )
+    );
+
+    toast.success(`Posted ${amount} ${selectedItemForPost.units} of ${selectedItemForPost.foodName} to marketplace`);
+    setIsPostDialogOpen(false);
+    setSelectedItemForPost(null);
   };
 
   const WarehouseCard = ({ item }: { item: WarehouseItem }) => (
@@ -407,7 +510,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
                         <div>
                           <p className="text-sm font-medium">Status</p>
                           <p className="text-xs text-muted-foreground capitalize">
-                            Verified & Added to Warehouse
+                            Verified & Added to Donations Stock
                           </p>
                         </div>
                       </div>
@@ -533,6 +636,16 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
                   </div>
                 </DialogContent>
               </Dialog>
+              
+              <Button 
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs"
+                onClick={() => handleOpenPostDialog(item)}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Post
+              </Button>
             </div>
           </div>
         </div>
@@ -736,8 +849,8 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 m-4">
             <TabsTrigger value="warehouse" className="text-xs">
-              <Warehouse className="w-4 h-4 mr-1" />
-              Warehouse Stock
+              <Package2 className="w-4 h-4 mr-1" />
+              Donations Stock
               <Badge className="ml-2 text-xs bg-blue-100 text-blue-800">
                 {warehouseItems.reduce((sum, item) => sum + item.availableQuantity, 0)}
               </Badge>
@@ -757,8 +870,8 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
             <TabsContent value="warehouse" className="mt-0">
               <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800">
-                  <Warehouse className="w-4 h-4 inline mr-1" />
-                  Total items in warehouse: {warehouseItems.length} types, 
+                  <Package2 className="w-4 h-4 inline mr-1" />
+                  Total items in donations stock: {warehouseItems.length} types, 
                   {warehouseItems.reduce((sum, item) => sum + item.availableQuantity, 0)} units available
                 </p>
               </div>
@@ -771,10 +884,10 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
                 ) : (
                   <Card>
                     <CardContent className="text-center py-12">
-                      <Warehouse className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No items in warehouse</h3>
+                      <Package2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No donated food items yet</h3>
                       <p className="text-muted-foreground">
-                        Approved donations will appear here as inventory
+                        Approved and verified donations will appear here as stock
                       </p>
                     </CardContent>
                   </Card>
@@ -814,6 +927,110 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
           </div>
         </Tabs>
       </div>
+
+      {/* Post to Marketplace Dialog */}
+      <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Post to Marketplace</DialogTitle>
+            <DialogDescription>
+              Post {selectedItemForPost?.foodName} to a vending machine for distribution
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedItemForPost && (
+            <div className="space-y-4 py-4">
+              {/* Item Info with Image */}
+              <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">{getCategoryIcon(selectedItemForPost.category)}</span>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900">{selectedItemForPost.foodName}</h4>
+                  <p className="text-sm text-gray-600">
+                    Available: {selectedItemForPost.availableQuantity} {selectedItemForPost.units}
+                  </p>
+                  {selectedItemForPost.proofImage && (
+                    <p className="text-xs text-green-600 mt-1">
+                      <Camera className="w-3 h-3 inline mr-1" />
+                      Verification image: {selectedItemForPost.proofImage}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Machine Selection */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 block mb-2">
+                  Target Machine *
+                </Label>
+                <select
+                  value={postForm.machine}
+                  onChange={(e) => setPostForm({...postForm, machine: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Select a machine</option>
+                  {machines
+                    .filter(m => m.status === 'online')
+                    .map(machine => (
+                      <option key={machine.id} value={machine.id}>
+                        {machine.name} - {machine.location} (Stock: {machine.stockLevel}%)
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 block mb-2">
+                  Amount *
+                </Label>
+                <Input
+                  type="number"
+                  value={postForm.amount}
+                  onChange={(e) => setPostForm({...postForm, amount: e.target.value})}
+                  placeholder="Enter amount"
+                  min="1"
+                  max={selectedItemForPost.availableQuantity}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Max: {selectedItemForPost.availableQuantity} {selectedItemForPost.units}
+                </p>
+              </div>
+
+              {/* Description */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 block mb-2">
+                  Description *
+                </Label>
+                <Textarea
+                  value={postForm.description}
+                  onChange={(e) => setPostForm({...postForm, description: e.target.value})}
+                  placeholder="Describe the food item for the marketplace..."
+                  className="min-h-[80px]"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex space-x-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsPostDialogOpen(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handlePostToMarketplace}
+                  className="flex-1"
+                >
+                  Post to Marketplace
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

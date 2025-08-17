@@ -276,7 +276,7 @@ class MockDatabase {
         foodName: 'Fresh Vegetables',
         description: 'Mixed seasonal vegetables - carrots, lettuce, tomatoes',
         quantity: '5',
-        units: 'kg',
+        units: 'pcs',
         expirationDate: '2025-08-15',
         category: 'perishable',
         photos: [],
@@ -307,7 +307,7 @@ class MockDatabase {
         name: 'Rice',
         category: 'non-perishable',
         quantity: 50,
-        unit: 'kg',
+        unit: 'pcs',
         location: 'Storage Room A',
         status: 'available',
         lastUpdated: '2025-08-13T10:00:00Z'
@@ -317,7 +317,7 @@ class MockDatabase {
         name: 'Canned Beans',
         category: 'non-perishable',
         quantity: 5,
-        unit: 'cans',
+        unit: 'pcs',
         location: 'Storage Room B',
         status: 'low',
         lastUpdated: '2025-08-13T14:00:00Z'
@@ -589,7 +589,7 @@ export default function App() {
       case 'ngo-profile':
         return <NGOProfile user={user} onNavigate={handleNavigation} onUpdateUser={updateUser} onLogout={logoutUser} />;
       case 'notifications':
-        return <Notifications notifications={notifications} onNavigate={handleNavigation} onMarkAsRead={markNotificationAsRead} />;
+        return <Notifications notifications={notifications} user={user || undefined} onNavigate={handleNavigation} onMarkAsRead={markNotificationAsRead} />;
       default:
         return <WelcomeScreen onNavigate={handleNavigation} />;
     }
