@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from './ui/dialog';
-import { CheckCircle, XCircle, Clock, Package, AlertTriangle, Eye, MapPin, Calendar, Plus, Bell } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Package, Eye, MapPin, Calendar, Plus, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage, User, Donation, StockItem } from '../App';
 

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { ArrowLeft, Wifi, WifiOff, AlertTriangle, RefreshCw, MapPin, Package, Thermometer, Calendar, Power, Lock, Unlock } from 'lucide-react';
+import { ArrowLeft, Wifi, WifiOff, AlertTriangle, RefreshCw, MapPin, Package, Thermometer, Lock, Unlock } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage } from '../App';
 
@@ -123,52 +123,6 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
     setShowDetails(true);
   };
 
-  const handleScheduleRefill = (machine: Machine) => {
-    // Show confirmation and simulate scheduling
-    const refillDate = new Date();
-    refillDate.setHours(refillDate.getHours() + 2); // Schedule 2 hours from now
-    
-    const timeString = refillDate.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    });
-    
-    toast.success(`Refill scheduled for ${machine.name} at ${timeString}`, {
-      description: "Volunteer team has been notified and will begin preparation.",
-      duration: 4000,
-    });
-  };
-
-  const handleRemoteControl = (machine: Machine, action: string) => {
-    if (machine.status !== 'online') {
-      toast.error(`Cannot control ${machine.name} - machine is ${machine.status}`);
-      return;
-    }
-
-    switch (action) {
-      case 'lock':
-        toast.success(`${machine.name} has been locked remotely`);
-        break;
-      case 'unlock':
-        toast.success(`${machine.name} has been unlocked remotely`);
-        break;
-      case 'reboot':
-        toast.success(`${machine.name} is rebooting...`);
-        break;
-      case 'dispense':
-        toast.success(`Test dispense initiated on ${machine.name}`);
-        break;
-      default:
-        toast.error('Unknown command');
-    }
-  };
-
-  const handleBulkRefill = () => {
-    const lowStockCount = lowStockMachines.length;
-    toast.success(`Bulk refill scheduled for ${lowStockCount} machines`);
-  };
-
   const handleExportReport = () => {
     toast.success('Machine report exported successfully');
   };
@@ -243,15 +197,6 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
             >
               View Details
             </Button>
-            {machine.stockLevel < 30 && machine.status === 'online' && (
-              <Button 
-                size="sm" 
-                className="flex-1 text-xs bg-gray-900 hover:bg-gray-800"
-                onClick={() => handleScheduleRefill(machine)}
-              >
-                Schedule Refill
-              </Button>
-            )}
           </div>
         </div>
       </CardContent>
@@ -337,13 +282,6 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
 
           {/* Quick Actions */}
           <div className="space-y-3">
-            <Button 
-              className="w-full"
-              onClick={handleBulkRefill}
-              disabled={lowStockMachines.length === 0}
-            >
-              Schedule Bulk Refill ({lowStockMachines.length} machines)
-            </Button>
             <Button 
               variant="outline" 
               className="w-full"
@@ -447,66 +385,10 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
                 </div>
               </div>
 
-              {/* Remote Control */}
-              {selectedMachine.status === 'online' && (
-                <div className="space-y-3 pt-2 border-t">
-                  <h4 className="text-sm font-medium text-gray-700">Remote Control</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleRemoteControl(selectedMachine, selectedMachine.isLocked ? 'unlock' : 'lock')}
-                    >
-                      {selectedMachine.isLocked ? <Unlock className="w-3 h-3 mr-1" /> : <Lock className="w-3 h-3 mr-1" />}
-                      {selectedMachine.isLocked ? 'Unlock' : 'Lock'}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleRemoteControl(selectedMachine, 'reboot')}
-                    >
-                      <Power className="w-3 h-3 mr-1" />
-                      Reboot
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleRemoteControl(selectedMachine, 'dispense')}
-                      className="col-span-2"
-                    >
-                      Test Dispense
-                    </Button>
-                  </div>
-                </div>
-              )}
-
               {/* Last Updated */}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Last Updated</span>
                 <span className="text-sm">{selectedMachine.lastUpdate}</span>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-2">
-                {selectedMachine.stockLevel < 30 && selectedMachine.status === 'online' && (
-                  <Button 
-                    className="flex-1 bg-gray-900 hover:bg-gray-800 text-white"
-                    onClick={() => {
-                      handleScheduleRefill(selectedMachine);
-                      setShowDetails(false);
-                    }}
-                  >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Schedule Refill
-                  </Button>
-                )}
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowDetails(false)}
-                  className="flex-1"
-                >
-                  Close
-                </Button>
               </div>
             </div>
           </DialogContent>
