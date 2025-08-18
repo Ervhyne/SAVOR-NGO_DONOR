@@ -638,9 +638,8 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
               </Dialog>
               
               <Button 
-                variant="outline"
                 size="sm"
-                className="flex-1 text-xs"
+                className="flex-1 text-xs bg-green-600 hover:bg-green-700"
                 onClick={() => handleOpenPostDialog(item)}
               >
                 <Plus className="w-3 h-3 mr-1" />
