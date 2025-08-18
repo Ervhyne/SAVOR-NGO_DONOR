@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { ArrowLeft, Wifi, WifiOff, AlertTriangle, RefreshCw, MapPin, Package, Thermometer, Lock, Unlock } from 'lucide-react';
+import { ArrowLeft, Wifi, WifiOff, AlertTriangle, RefreshCw, MapPin, Package, Thermometer } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage } from '../App';
 
@@ -322,6 +322,24 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
                 </div>
               </div>
 
+              {/* Location Map */}
+              <div className="space-y-2">
+                <span className="text-sm font-medium text-gray-700">Location Map</span>
+                <div className="relative w-full h-32 bg-gray-100 rounded-lg overflow-hidden border">
+                  <img 
+                    src="https://via.placeholder.com/400x200/4285f4/ffffff?text=Google+Maps+Location"
+                    alt={`Map location of ${selectedMachine.location}`}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Map pin overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-red-500 rounded-full p-2 shadow-lg">
+                      <MapPin className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Stock Level */}
               <div>
                 <div className="flex justify-between items-center mb-2">
@@ -353,34 +371,6 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
                   <div>
                     <div className="text-sm font-medium">{selectedMachine.temperature}°C</div>
                     <div className="text-xs text-gray-500">Temperature</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Machine Details */}
-              <div className="space-y-3 pt-2 border-t">
-                <h4 className="text-sm font-medium text-gray-700">Machine Details</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-500">Model:</span>
-                    <div className="font-medium">{selectedMachine.model}</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Serial:</span>
-                    <div className="font-medium">{selectedMachine.serialNumber}</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Voltage:</span>
-                    <div className="font-medium">{selectedMachine.voltage}V</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Status:</span>
-                    <div className={`font-medium flex items-center gap-1 ${
-                      selectedMachine.isLocked ? 'text-red-600' : 'text-green-600'
-                    }`}>
-                      {selectedMachine.isLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-                      {selectedMachine.isLocked ? 'Locked' : 'Unlocked'}
-                    </div>
                   </div>
                 </div>
               </div>
