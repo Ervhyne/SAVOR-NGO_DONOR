@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { RoleSelection } from './components/RoleSelection';
 import { Login } from './components/Login';
-import { Registration } from './components/Registration';
+import { Registration } from './components/RegistrationNew';
 import { OTPVerification } from './components/OTPVerification';
 import { DonorDashboard } from './components/DonorDashboard';
 import { NGODashboard } from './components/NGODashboard';
@@ -182,40 +182,92 @@ class MockDatabase {
     return stored as UserRole | null;
   }
 
-  // Save data to localStorage
+  // Save data to localStorage with error handling
   saveUsers(users: User[]): void {
-    localStorage.setItem('savor_users', JSON.stringify(users));
+    try {
+      localStorage.setItem('savor_users', JSON.stringify(users));
+    } catch (e) {
+      console.warn('Failed to save users to localStorage:', e);
+      // Clear some space and try again
+      this.clearOldData();
+      try {
+        localStorage.setItem('savor_users', JSON.stringify(users));
+      } catch (retryError) {
+        console.error('Failed to save users after clearing:', retryError);
+      }
+    }
   }
 
   saveDonations(donations: Donation[]): void {
-    localStorage.setItem('savor_donations', JSON.stringify(donations));
+    try {
+      localStorage.setItem('savor_donations', JSON.stringify(donations));
+    } catch (e) {
+      console.warn('Failed to save donations to localStorage:', e);
+    }
   }
 
   saveStockItems(stock: StockItem[]): void {
-    localStorage.setItem('savor_stock', JSON.stringify(stock));
+    try {
+      localStorage.setItem('savor_stock', JSON.stringify(stock));
+    } catch (e) {
+      console.warn('Failed to save stock to localStorage:', e);
+    }
   }
 
   saveVolunteers(volunteers: Volunteer[]): void {
-    localStorage.setItem('savor_volunteers', JSON.stringify(volunteers));
+    try {
+      localStorage.setItem('savor_volunteers', JSON.stringify(volunteers));
+    } catch (e) {
+      console.warn('Failed to save volunteers to localStorage:', e);
+    }
   }
 
   saveMessages(messages: Message[]): void {
-    localStorage.setItem('savor_messages', JSON.stringify(messages));
+    try {
+      localStorage.setItem('savor_messages', JSON.stringify(messages));
+    } catch (e) {
+      console.warn('Failed to save messages to localStorage:', e);
+    }
   }
 
   saveCurrentUser(user: User | null): void {
-    if (user) {
-      localStorage.setItem('savor_current_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('savor_current_user');
+    try {
+      if (user) {
+        localStorage.setItem('savor_current_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('savor_current_user');
+      }
+    } catch (e) {
+      console.warn('Failed to save current user to localStorage:', e);
     }
   }
 
   saveSelectedRole(role: UserRole | null): void {
-    if (role) {
-      localStorage.setItem('savor_selected_role', role);
-    } else {
-      localStorage.removeItem('savor_selected_role');
+    try {
+      if (role) {
+        localStorage.setItem('savor_selected_role', role);
+      } else {
+        localStorage.removeItem('savor_selected_role');
+      }
+    } catch (e) {
+      console.warn('Failed to save selected role to localStorage:', e);
+    }
+  }
+
+  // Clear old/unnecessary data to free up space
+  clearOldData(): void {
+    try {
+      // Remove old data that might be taking up space
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && !key.startsWith('savor_')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+    } catch (e) {
+      console.warn('Failed to clear old data:', e);
     }
   }
 
@@ -444,32 +496,38 @@ export default function App() {
   const verifyOTP = (otp: string): boolean => {
     // Mock OTP verification (accept 123456)
     if (otp === '123456') {
-      const newUser: User = {
-        ...registrationData,
-        id: Date.now().toString(),
-        role: selectedRole!,
-        createdAt: new Date().toISOString(),
-        totalDonations: 0,
-        totalMealsServed: 0,
-        isVerified: true
-      };
-      
-      const users = db.loadUsers();
-      users.push(newUser);
-      db.saveUsers(users);
-      db.saveCurrentUser(newUser);
-      setUser(newUser);
-      loadUserData();
-      
-      // Navigate to the appropriate dashboard based on role
-      if (selectedRole === 'donor') {
-        setCurrentPage('donor-dashboard');
-      } else {
-        setCurrentPage('ngo-dashboard');
+      try {
+        const newUser: User = {
+          ...registrationData,
+          id: Date.now().toString(),
+          role: selectedRole!,
+          createdAt: new Date().toISOString(),
+          totalDonations: 0,
+          totalMealsServed: 0,
+          isVerified: true
+        };
+        
+        const users = db.loadUsers();
+        users.push(newUser);
+        db.saveUsers(users);
+        db.saveCurrentUser(newUser);
+        setUser(newUser);
+        loadUserData();
+        
+        // Navigate to the appropriate dashboard based on role
+        if (selectedRole === 'donor') {
+          setCurrentPage('donor-dashboard');
+        } else {
+          setCurrentPage('ngo-dashboard');
+        }
+        
+        toast.success('Account verified successfully!');
+        return true;
+      } catch (error) {
+        console.error('Error during OTP verification:', error);
+        toast.error('Verification failed. Please try again.');
+        return false;
       }
-      
-      toast.success('Account verified successfully!');
-      return true;
     }
     return false;
   };
