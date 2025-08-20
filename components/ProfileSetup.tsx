@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Checkbox } from './ui/checkbox';
 import { ArrowLeft, Upload } from 'lucide-react';
@@ -48,7 +47,7 @@ export function ProfileSetup({ user, onNavigate, onUpdateUser }: ProfileSetupPro
 
     const updatedUser: User = {
       ...user,
-      organization: formData.organization,
+      organizationName: formData.organization,
       donationPreferences: formData.donationTypes,
       profilePicture: formData.profilePicture
     };
