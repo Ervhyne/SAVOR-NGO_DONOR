@@ -3,6 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from './ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
@@ -55,6 +56,9 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
   const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
   const [editingDonation, setEditingDonation] = useState<MarketplaceDonation | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'low-stock' | 'out-of-stock'>('all');
+  const [viewingDonation, setViewingDonation] = useState<MarketplaceDonation | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   
   const [postForm, setPostForm] = useState<PostForm>({
     foodName: '',
@@ -147,6 +151,11 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
       proofImage: 'bread.jpg'
     }
   ]);
+
+  // Filter donations based on status
+  const filteredDonations = statusFilter === 'all' 
+    ? marketplaceDonations 
+    : marketplaceDonations.filter(donation => donation.status === statusFilter);
 
   const getStatusColor = (status: MarketplaceDonation['status']) => {
     switch (status) {
@@ -294,6 +303,11 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
     resetPostForm();
   };
 
+  const handleViewDetails = (donation: MarketplaceDonation) => {
+    setViewingDonation(donation);
+    setIsViewDialogOpen(true);
+  };
+
   const handleDeleteDonation = (donation: MarketplaceDonation) => {
     setMarketplaceDonations(prev => prev.filter(d => d.id !== donation.id));
     toast.success(`Removed "${donation.foodName}" from marketplace`);
@@ -385,9 +399,53 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
           </Card>
         </div>
 
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            variant={statusFilter === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatusFilter('all')}
+            className="text-xs"
+          >
+            All ({marketplaceDonations.length})
+          </Button>
+          <Button
+            variant={statusFilter === 'active' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatusFilter('active')}
+            className="text-xs"
+          >
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Active ({marketplaceDonations.filter(d => d.status === 'active').length})
+          </Button>
+          <Button
+            variant={statusFilter === 'low-stock' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatusFilter('low-stock')}
+            className="text-xs"
+          >
+            <AlertTriangle className="w-3 h-3 mr-1" />
+            Low Stock ({marketplaceDonations.filter(d => d.status === 'low-stock').length})
+          </Button>
+          <Button
+            variant={statusFilter === 'out-of-stock' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatusFilter('out-of-stock')}
+            className="text-xs"
+          >
+            <Package2 className="w-3 h-3 mr-1" />
+            Out of Stock ({marketplaceDonations.filter(d => d.status === 'out-of-stock').length})
+          </Button>
+        </div>
+
         {/* Action Bar */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">Posted Donations</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            {statusFilter === 'all' ? 'Posted Donations' : 
+             statusFilter === 'active' ? 'Active Donations' :
+             statusFilter === 'low-stock' ? 'Low Stock Donations' :
+             'Out of Stock Donations'} ({filteredDonations.length})
+          </h2>
           <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => resetPostForm()}>
@@ -528,8 +586,8 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
 
         {/* Donations List */}
         <div className="space-y-3">
-          {marketplaceDonations.length > 0 ? (
-            marketplaceDonations.map((donation) => (
+          {filteredDonations.length > 0 ? (
+            filteredDonations.map((donation) => (
               <Card key={donation.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-3">
@@ -573,21 +631,50 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => handleViewDetails(donation)}
+                          className="flex-1 text-xs"
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          View Details
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleEditDonation(donation)}
                           className="flex-1 text-xs"
                         >
                           <Edit3 className="w-3 h-3 mr-1" />
                           Edit
                         </Button>
-                        <Button
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleDeleteDonation(donation)}
-                          className="flex-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-3 h-3 mr-1" />
-                          Delete
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline" 
+                              size="sm"
+                              className="flex-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" />
+                              Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Donation</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{donation.foodName}"? This action cannot be undone and will remove the donation from the marketplace.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteDonation(donation)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete Donation
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   </div>
@@ -598,19 +685,143 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
             <Card>
               <CardContent className="text-center py-12">
                 <Package2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No donations posted</h3>
-                <p className="text-gray-600 mb-6">
-                  Start by posting your first donation to help beneficiaries in need
-                </p>
-                <Button onClick={() => setIsPostDialogOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Post Your First Donation
-                </Button>
+                {statusFilter === 'all' ? (
+                  <>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No donations posted</h3>
+                    <p className="text-gray-600 mb-6">
+                      Start by posting your first donation to help beneficiaries in need
+                    </p>
+                    <Button onClick={() => setIsPostDialogOpen(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Post Your First Donation
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No {statusFilter.replace('-', ' ')} donations found
+                    </h3>
+                    <p className="text-gray-600">
+                      No donations match the selected filter
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           )}
         </div>
       </div>
+
+      {/* View Details Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Donation Details</DialogTitle>
+            <DialogDescription>
+              Complete information about this donation post
+            </DialogDescription>
+          </DialogHeader>
+          
+          {viewingDonation && (
+            <div className="space-y-4 py-4">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">{getCategoryIcon(viewingDonation.category)}</span>
+                </div>
+                <div>
+                  <h3 className="font-medium text-lg">{viewingDonation.foodName}</h3>
+                  <Badge className={`text-xs ${getStatusColor(viewingDonation.status)}`}>
+                    {viewingDonation.status.replace('-', ' ').toUpperCase()}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Category</Label>
+                    <p className="text-sm capitalize">{viewingDonation.category.replace('-', ' ')}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Available Stock</Label>
+                    <p className="text-sm font-semibold text-green-600">
+                      {viewingDonation.quantity} {viewingDonation.units}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Location</Label>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span>{viewingDonation.machineName} - {viewingDonation.machineLocation}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Description</Label>
+                  <p className="text-sm text-gray-700">{viewingDonation.description}</p>
+                </div>
+
+                {viewingDonation.expirationDate && (
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Expiration Date</Label>
+                    <div className="flex items-center space-x-2 text-sm text-orange-600">
+                      <Clock className="w-4 h-4" />
+                      <span>{formatDate(viewingDonation.expirationDate)}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Posted Date</Label>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <span>{formatDate(viewingDonation.datePosted)}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Total Views</Label>
+                    <div className="flex items-center space-x-2">
+                      <Eye className="w-4 h-4 text-blue-500" />
+                      <span className="text-sm font-semibold text-blue-600">{viewingDonation.viewCount}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Claims</Label>
+                    <div className="flex items-center space-x-2">
+                      <Users className="w-4 h-4 text-purple-500" />
+                      <span className="text-sm font-semibold text-purple-600">{viewingDonation.claimedCount}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsViewDialogOpen(false)}
+                  className="flex-1"
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsViewDialogOpen(false);
+                    handleEditDonation(viewingDonation);
+                  }}
+                  className="flex-1"
+                >
+                  <Edit3 className="w-4 h-4 mr-2" />
+                  Edit Donation
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -737,12 +948,27 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
               >
                 Cancel
               </Button>
-              <Button
-                onClick={handleUpdateDonation}
-                className="flex-1"
-              >
-                Update Donation
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button className="flex-1">
+                    Update Donation
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirm Changes</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to update this donation? The changes will be visible to all beneficiaries.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleUpdateDonation}>
+                      Update Donation
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </DialogContent>

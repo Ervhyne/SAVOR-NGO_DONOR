@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
@@ -32,6 +32,7 @@ interface MachineMonitoringProps {
 export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
   const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'online' | 'offline' | 'maintenance'>('all');
   
   // Mock IoT machine data
   const [machines] = useState<Machine[]>([
@@ -101,9 +102,10 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
     }
   ]);
 
-  const onlineMachines = machines.filter(m => m.status === 'online');
-  const lowStockMachines = machines.filter(m => m.stockLevel < 30);
-  const alertMachines = machines.filter(m => m.alerts.length > 0);
+  // Filter machines based on selected status
+  const filteredMachines = statusFilter === 'all' 
+    ? machines 
+    : machines.filter(machine => machine.status === statusFilter);
 
   const getStatusColor = (status: Machine['status']) => {
     switch (status) {
@@ -228,56 +230,66 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
         </div>
 
         <div className="p-4 space-y-6">
-          {/* Overview Stats */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-green-600">{onlineMachines.length}</div>
-                <div className="text-xs text-muted-foreground">Online</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-orange-600">{lowStockMachines.length}</div>
-                <div className="text-xs text-muted-foreground">Low Stock</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-red-600">{alertMachines.length}</div>
-                <div className="text-xs text-muted-foreground">Alerts</div>
-              </CardContent>
-            </Card>
+          {/* Filter Buttons */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={statusFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('all')}
+              className="text-xs"
+            >
+              All Machines ({machines.length})
+            </Button>
+            <Button
+              variant={statusFilter === 'online' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('online')}
+              className="text-xs"
+            >
+              <Wifi className="w-3 h-3 mr-1" />
+              Active ({machines.filter(m => m.status === 'online').length})
+            </Button>
+            <Button
+              variant={statusFilter === 'maintenance' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('maintenance')}
+              className="text-xs"
+            >
+              <AlertTriangle className="w-3 h-3 mr-1" />
+              Maintenance ({machines.filter(m => m.status === 'maintenance').length})
+            </Button>
+            <Button
+              variant={statusFilter === 'offline' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('offline')}
+              className="text-xs"
+            >
+              <WifiOff className="w-3 h-3 mr-1" />
+              Offline ({machines.filter(m => m.status === 'offline').length})
+            </Button>
           </div>
-
-          {/* Alerts Section */}
-          {alertMachines.length > 0 && (
-            <Card className="border-orange-200 bg-orange-50">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center text-base text-orange-800">
-                  <AlertTriangle className="w-4 h-4 mr-2" />
-                  Active Alerts
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {alertMachines.map(machine => (
-                  <div key={machine.id} className="p-2 bg-white rounded-lg">
-                    <div className="font-medium text-sm text-orange-800">{machine.name}</div>
-                    <div className="text-xs text-orange-600">
-                      {machine.alerts.join(', ')}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
 
           {/* Machines List */}
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold">All Machines</h2>
-            {machines.map((machine) => (
-              <MachineCard key={machine.id} machine={machine} />
-            ))}
+            <h2 className="text-lg font-semibold">
+              {statusFilter === 'all' ? 'All Machines' : 
+               statusFilter === 'online' ? 'Active Machines' :
+               statusFilter === 'maintenance' ? 'Maintenance Machines' :
+               'Offline Machines'} ({filteredMachines.length})
+            </h2>
+            {filteredMachines.length === 0 ? (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <div className="text-gray-500 text-sm">
+                    No machines found for the selected filter
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              filteredMachines.map((machine) => (
+                <MachineCard key={machine.id} machine={machine} />
+              ))
+            )}
           </div>
 
           {/* Quick Actions */}
