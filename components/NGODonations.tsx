@@ -75,7 +75,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
   const machines = [
     {
       id: 'dispenser-001',
-      name: 'Downtown Dispenser #1',
+      name: 'Dispenser #1',
       location: 'Main Street Plaza',
       status: 'online' as const,
       stockLevel: 85,
@@ -83,7 +83,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
     },
     {
       id: 'dispenser-002', 
-      name: 'Community Center #2',
+      name: 'Dispenser #2',
       location: 'Oak Avenue Center',
       status: 'online' as const,
       stockLevel: 23,

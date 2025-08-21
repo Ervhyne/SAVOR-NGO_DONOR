@@ -48,7 +48,7 @@ export function NGOStock({ onNavigate }: NGOStockProps) {
   const [machines] = useState<FoodDispenser[]>([
     {
       id: 'dispenser-001',
-      name: 'Downtown Dispenser #1',
+      name: 'Dispenser #1',
       location: 'Main Street Plaza',
       status: 'online',
       stockLevel: 85,
@@ -64,7 +64,7 @@ export function NGOStock({ onNavigate }: NGOStockProps) {
     },
     {
       id: 'dispenser-002',
-      name: 'Community Center #2',
+      name: 'Dispenser #2',
       location: 'Oak Avenue Center',
       status: 'online',
       stockLevel: 23,
@@ -80,7 +80,7 @@ export function NGOStock({ onNavigate }: NGOStockProps) {
     },
     {
       id: 'dispenser-003',
-      name: 'Park Entrance #3',
+      name: 'Dispenser #3',
       location: 'Central Park East',
       status: 'offline',
       stockLevel: 0,

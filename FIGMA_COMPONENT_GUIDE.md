@@ -485,7 +485,7 @@ Variants:
 ### Status Badge Component
 ```
 Frame Dimensions:
-• Width: Auto
+• Width: Auto (fits content)
 • Height: 24px
 
 Auto Layout:
@@ -493,17 +493,115 @@ Auto Layout:
 • Padding: 6px horizontal, 4px vertical
 • Alignment: Center
 
-Corner Radius: 12px
+Corner Radius: 12px (fully rounded)
 
 Text:
-• Style: Small-Text
-• Text: "Status"
+• Style: Small-Text (12px)
+• Font Weight: Medium (500)
+• Line Height: 17px
+• Text: "Status Text"
 
-Variants:
-• Pending: Fill #fef3c7, Text #92400e
-• Approved: Fill #d1fae5, Text #065f46
-• In-Transit: Fill #dbeafe, Text #1e40af
-• Delivered: Fill #d1fae5, Text #065f46
+Badge Variants:
+
+SUCCESS BADGES:
+• Posted: Fill #dcfce7, Text #166534, Border #bbf7d0
+• Active: Fill #dcfce7, Text #166534, Border #bbf7d0  
+• Online: Fill #dcfce7, Text #166534, Border #bbf7d0
+• Approved: Fill #dcfce7, Text #166534, Border #bbf7d0
+• Delivered: Fill #dcfce7, Text #166534, Border #bbf7d0
+
+WARNING BADGES:
+• Alert: Fill #fef3c7, Text #92400e, Border #fde68a
+• Low Stock: Fill #fef3c7, Text #92400e, Border #fde68a
+• Maintenance: Fill #fef3c7, Text #92400e, Border #fde68a
+• Pending: Fill #fef3c7, Text #92400e, Border #fde68a
+
+ERROR BADGES:
+• Empty: Fill #fee2e2, Text #991b1b, Border #fecaca
+• Out of Stock: Fill #fee2e2, Text #991b1b, Border #fecaca
+• Offline: Fill #fee2e2, Text #991b1b, Border #fecaca
+• Rejected: Fill #fee2e2, Text #991b1b, Border #fecaca
+
+INFO BADGES:
+• Claimed: Fill #dbeafe, Text #1e40af, Border #bfdbfe
+• In Transit: Fill #dbeafe, Text #1e40af, Border #bfdbfe
+• Processing: Fill #dbeafe, Text #1e40af, Border #bfdbfe
+
+NEUTRAL BADGES:
+• Expired: Fill #f3f4f6, Text #374151, Border #e5e7eb
+• Draft: Fill #f3f4f6, Text #374151, Border #e5e7eb
+• Paused: Fill #f3f4f6, Text #374151, Border #e5e7eb
+
+PURPLE BADGES:
+• Maintenance: Fill #f3e8ff, Text #7c2d12, Border #e9d5ff
+• Scheduled: Fill #f3e8ff, Text #7c2d12, Border #e9d5ff
+
+Badge Sizes:
+• Small: Height 20px, Padding 4px horizontal, 2px vertical
+• Default: Height 24px, Padding 6px horizontal, 4px vertical  
+• Large: Height 28px, Padding 8px horizontal, 6px vertical
+
+Usage Examples:
+• Machine Status: Online, Offline, Maintenance
+• Donation Status: Posted, Claimed, Empty
+• Alert Types: Alert, Low Stock, Out of Stock
+• Process Status: Pending, Approved, Rejected
+```
+
+### Recent Activity Badge Component
+```
+Specific badges for Recent Activities section:
+
+Frame Dimensions:
+• Width: Auto (typically 40-70px)
+• Height: 24px
+• Padding: 6px horizontal, 4px vertical
+• Corner Radius: 12px
+
+Activity Badge Variants:
+
+1. POSTED Badge:
+• Background: #dcfce7 (green-100)
+• Text: #166534 (green-800) 
+• Border: 1px solid #bbf7d0 (green-200)
+• Text: "posted"
+
+2. ALERT Badge:
+• Background: #fef3c7 (yellow-100)
+• Text: #92400e (yellow-800)
+• Border: 1px solid #fde68a (yellow-200)
+• Text: "alert"
+
+3. CLAIMED Badge:
+• Background: #dbeafe (blue-100)
+• Text: #1e40af (blue-800)
+• Border: 1px solid #bfdbfe (blue-200)
+• Text: "claimed"
+
+4. ONLINE Badge:
+• Background: #dcfce7 (green-100)
+• Text: #166534 (green-800)
+• Border: 1px solid #bbf7d0 (green-200)
+• Text: "online"
+
+5. EMPTY Badge:
+• Background: #fee2e2 (red-100)
+• Text: #991b1b (red-800)
+• Border: 1px solid #fecaca (red-200)
+• Text: "empty"
+
+6. MAINTENANCE Badge:
+• Background: #f3e8ff (purple-100)
+• Text: #7c2d12 (purple-800)
+• Border: 1px solid #e9d5ff (purple-200)
+• Text: "maintenance"
+
+Badge Text Specifications:
+• Font: Inter/SF Pro Medium
+• Size: 12px
+• Line Height: 17px
+• Letter Spacing: Normal
+• Text Transform: Lowercase
 ```
 
 ### Progress Steps Component

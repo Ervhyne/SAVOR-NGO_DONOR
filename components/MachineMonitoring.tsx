@@ -38,7 +38,7 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
   const [machines] = useState<Machine[]>([
     {
       id: 'machine1',
-      name: 'Downtown Dispenser #1',
+      name: 'Dispenser #1',
       location: 'Main Street Plaza',
       status: 'online',
       stockLevel: 85,
@@ -54,7 +54,7 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
     },
     {
       id: 'machine2',
-      name: 'Community Center #2',
+      name: 'Dispenser #2',
       location: 'Oak Avenue Center',
       status: 'online',
       stockLevel: 23,
@@ -70,7 +70,7 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
     },
     {
       id: 'machine3',
-      name: 'Park Entrance #3',
+      name: 'Dispenser #3',
       location: 'Central Park East',
       status: 'offline',
       stockLevel: 67,
@@ -86,7 +86,7 @@ export function MachineMonitoring({ onNavigate }: MachineMonitoringProps) {
     },
     {
       id: 'machine4',
-      name: 'School Campus #4',
+      name: 'Dispenser #4',
       location: 'Lincoln Elementary',
       status: 'maintenance',
       stockLevel: 0,

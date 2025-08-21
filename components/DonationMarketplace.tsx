@@ -74,7 +74,7 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
   const machines = [
     {
       id: 'dispenser-001',
-      name: 'Downtown Dispenser #1',
+      name: 'Dispenser #1',
       location: 'Main Street Plaza',
       status: 'online' as const,
       stockLevel: 85,
@@ -82,7 +82,7 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
     },
     {
       id: 'dispenser-002', 
-      name: 'Community Center #2',
+      name: 'Dispenser #2',
       location: 'Oak Avenue Center',
       status: 'online' as const,
       stockLevel: 23,
@@ -90,7 +90,7 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
     },
     {
       id: 'dispenser-003',
-      name: 'University Campus #3',
+      name: 'Dispenser #3',
       location: 'Campus Food Court',
       status: 'online' as const,
       stockLevel: 45,
@@ -108,7 +108,7 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
       units: 'pcs',
       description: 'Fresh mixed vegetables perfect for families. Contains carrots, broccoli, and bell peppers.',
       targetMachine: 'dispenser-001',
-      machineName: 'Downtown Dispenser #1',
+      machineName: 'Dispenser #1',
       machineLocation: 'Main Street Plaza',
       expirationDate: '2025-08-20',
       datePosted: '2025-08-16T10:00:00',
@@ -125,7 +125,7 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
       units: 'pcs',
       description: 'Assorted canned soups including tomato, chicken, and vegetable varieties.',
       targetMachine: 'dispenser-002',
-      machineName: 'Community Center #2',
+      machineName: 'Dispenser #2',
       machineLocation: 'Oak Avenue Center',
       datePosted: '2025-08-15T14:30:00',
       status: 'low-stock',
@@ -141,7 +141,7 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
       units: 'pcs',
       description: 'Freshly baked bread loaves from local bakery.',
       targetMachine: 'dispenser-001',
-      machineName: 'Downtown Dispenser #1',
+      machineName: 'Dispenser #1',
       machineLocation: 'Main Street Plaza',
       expirationDate: '2025-08-17',
       datePosted: '2025-08-15T08:00:00',

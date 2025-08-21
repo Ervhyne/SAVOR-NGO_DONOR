@@ -323,34 +323,85 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
             </CardContent>
           </Card>
 
-          {/* Recent Activity */}
+          {/* Recent Activities */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Recent Activity</CardTitle>
+              <CardTitle className="text-base">Recent Activities</CardTitle>
             </CardHeader>
             <CardContent>
-              {ngoDonations.length > 0 ? (
-                <div className="space-y-3">
-                  {ngoDonations.slice(0, 3).map((donation) => (
-                    <div key={donation.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{donation.foodName}</h4>
-                        <p className="text-xs text-muted-foreground">
-                          {donation.donorName} • {formatDate(donation.createdAt)}
-                        </p>
-                      </div>
-                      <Badge className={`text-xs ${getStatusColor(donation.status)}`}>
-                        {donation.status}
-                      </Badge>
-                    </div>
-                  ))}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm">Fresh Vegetables</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Posted to Dispenser #1 • Aug 20, 8:00 AM
+                    </p>
+                  </div>
+                  <Badge className="text-xs bg-green-100 text-green-800 border-green-200">
+                    posted
+                  </Badge>
                 </div>
-              ) : (
-                <div className="text-center py-6">
-                  <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-muted-foreground text-sm">No recent donations</p>
+                
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm">Dispenser #2</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Low stock alert - requires refill • Aug 20, 7:30 AM
+                    </p>
+                  </div>
+                  <Badge className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
+                    alert
+                  </Badge>
                 </div>
-              )}
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm">Canned Soup Variety</h4>
+                    <p className="text-xs text-muted-foreground">
+                      15 items claimed by beneficiaries • Aug 19, 6:45 PM
+                    </p>
+                  </div>
+                  <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                    claimed
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm">Dispenser #3</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Connection restored - back online • Aug 19, 5:20 PM
+                    </p>
+                  </div>
+                  <Badge className="text-xs bg-green-100 text-green-800 border-green-200">
+                    online
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm">Bread Loaves</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Stock depleted - out of stock • Aug 19, 3:15 PM
+                    </p>
+                  </div>
+                  <Badge className="text-xs bg-red-100 text-red-800 border-red-200">
+                    empty
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm">Dispenser #4</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Scheduled maintenance completed • Aug 19, 2:00 PM
+                    </p>
+                  </div>
+                  <Badge className="text-xs bg-purple-100 text-purple-800 border-purple-200">
+                    maintenance
+                  </Badge>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
