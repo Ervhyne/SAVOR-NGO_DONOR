@@ -683,4 +683,251 @@ Components should:
 - Type: Basic, Metric, Action
 - State: Default, Hover, Selected
 
+---
+
+## 📋 Pending Approvals Component
+
+### Pending Approvals Header
+```
+Frame Dimensions:
+• Width: 343px
+• Height: Auto
+
+Auto Layout:
+• Direction: Horizontal
+• Padding: 0px
+• Gap: 8px
+• Alignment: Center left
+
+Icon:
+• Size: 20px × 20px
+• Color: Text-Dark (#0f172a)
+• Icon: clock or pending-clock
+
+Title Text:
+• Style: Section-Header (16px Medium)
+• Color: Text-Dark (#0f172a)
+• Text: "Pending Approvals"
+
+Count Badge (Optional):
+• Height: 20px
+• Padding: 4px horizontal
+• Background: Warning (#f59e0b)
+• Text: White
+• Corner Radius: 10px
+• Text: Number count
+```
+
+### Pending Approval Card Component
+```
+Frame Dimensions:
+• Width: 335px
+• Height: Auto (typically 140-160px)
+
+Auto Layout:
+• Direction: Vertical
+• Padding: 16px all sides
+• Gap: 12px
+• Alignment: Top left
+
+Fill: White
+Drop Shadow: 0px 1px 3px rgba(0,0,0,0.1)
+Corner Radius: 8px
+Stroke: 1px solid #e5e7eb
+
+Card Header (Horizontal Layout):
+• Gap: 12px
+• Alignment: Space between
+
+Left Section:
+• Food Name: Style Section-Header, Color Text-Dark
+• Donor Name: Style Small-Text, Color Text-Medium
+• Submission Date: Style Small-Text, Color Text-Light
+
+Right Section:
+• Status Badge: "Pending Review" (Warning variant)
+
+Card Content (Vertical Layout):
+• Gap: 8px
+
+Food Details:
+• Quantity: Style Body-Text, Color Text-Medium
+• Expiry Date: Style Small-Text, Color Text-Medium
+• Description: Style Small-Text, Color Text-Medium (truncated)
+
+Action Buttons (Horizontal Layout):
+• Gap: 8px
+• Alignment: Center
+
+Primary Button (Approve):
+• Width: 80px, Height: 32px
+• Background: Success (#16a34a)
+• Text: "Approve"
+• Style: Small-Text, Weight Medium
+
+Secondary Button (Reject):
+• Width: 70px, Height: 32px
+• Background: Transparent
+• Stroke: Error (#dc2626)
+• Text: "Reject"
+• Color: Error (#dc2626)
+
+View Details Link:
+• Style: Small-Text
+• Color: Info (#3b82f6)
+• Text: "View Details"
+• Underline: On hover
+```
+
+### Empty State Component
+```
+Frame Dimensions:
+• Width: 335px
+• Height: 200px
+
+Auto Layout:
+• Direction: Vertical
+• Padding: 32px
+• Gap: 16px
+• Alignment: Center
+
+Illustration:
+• Size: 80px × 80px
+• Color: Text-Light (#94a3b8)
+• Icon: Large checkmark in circle
+
+Title:
+• Style: Section-Header
+• Color: Text-Medium (#64748b)
+• Text: "All caught up!"
+
+Subtitle:
+• Style: Body-Text
+• Color: Text-Light (#94a3b8)
+• Text: "No donations waiting for approval"
+• Text Align: Center
+```
+
+### Bulk Actions Header
+```
+Frame Dimensions:
+• Width: 335px
+• Height: 48px
+
+Auto Layout:
+• Direction: Horizontal
+• Padding: 12px horizontal, 8px vertical
+• Gap: 8px
+• Alignment: Space between
+
+Background: Light blue (#f0f9ff)
+Corner Radius: 6px
+
+Left Section:
+• Checkbox: 16px × 16px
+• Text: "Select All" (Small-Text, Text-Dark)
+
+Right Section:
+• Bulk Actions: Horizontal layout, gap 8px
+• Approve All Button: Success color, 28px height
+• Reject All Button: Error color, 28px height
+```
+
+### Filter Tabs Component
+```
+Frame Dimensions:
+• Width: 335px
+• Height: 40px
+
+Auto Layout:
+• Direction: Horizontal
+• Padding: 0px
+• Gap: 1px
+• Alignment: Center
+
+Tab Button:
+• Width: Auto (equal distribution)
+• Height: 40px
+• Padding: 8px horizontal
+• Background: Transparent (inactive) / Info (#3b82f6) active
+• Text Color: Text-Medium (inactive) / White (active)
+
+Tab Variants:
+• "All Pending" - Default active state
+• "Food Items" - Food donations only
+• "Documents" - Document verifications only
+• "NGO Applications" - New NGO registrations
+```
+
+---
+
+## 📊 Pending Approvals Data Structure
+
+### Sample Pending Approval Data
+```
+Pending Food Donations:
+
+1. Fresh Vegetable Bundle
+   • Donor: "Green Grocery Store"
+   • Quantity: "15 kg mixed vegetables"
+   • Submitted: "2 hours ago"
+   • Expiry: "Tomorrow"
+   • Target: "Dispenser #2"
+   • Status: "Pending Review"
+   • Priority: High (due to expiry)
+
+2. Canned Goods Collection  
+   • Donor: "Community Kitchen"
+   • Quantity: "24 canned items"
+   • Submitted: "5 hours ago"
+   • Expiry: "6 months"
+   • Target: "Dispenser #1" 
+   • Status: "Pending Review"
+   • Priority: Normal
+
+3. Bakery Surplus
+   • Donor: "Daily Bread Bakery"
+   • Quantity: "8 loaves + pastries"
+   • Submitted: "1 day ago"
+   • Expiry: "Today"
+   • Target: "Dispenser #3"
+   • Status: "Pending Review"
+   • Priority: Urgent
+
+Document Verifications:
+
+1. NGO Registration - Hope Foundation
+   • Document: "Tax Exemption Certificate"
+   • Submitted: "3 days ago" 
+   • Status: "Under Review"
+
+2. Volunteer Application - Sarah Chen
+   • Document: "Background Check"
+   • Submitted: "1 week ago"
+   • Status: "Pending Verification"
+```
+
+### Approval Action Flow
+```
+Quick Approve Actions:
+• Single item: Tap "Approve" → Instant approval
+• Bulk select: Check multiple → "Approve Selected"
+• Quick filters: "Approve All Expiring Today"
+
+Detailed Review Actions:
+• Tap "View Details" → Full approval screen
+• Review images, documents, donor history
+• Add approval notes/conditions
+• Set distribution schedule
+
+Rejection Reasons:
+• Quality concerns
+• Expired items
+• Incomplete information  
+• Policy violations
+• Duplicate submission
+```
+
+---
+
 This guide provides exact Figma specifications for creating consistent, pixel-perfect components that match your design system!

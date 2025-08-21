@@ -350,6 +350,100 @@ class MockDatabase {
           'Delivered to NGO facility'
         ],
         assignedVolunteer: 'Mike Wilson'
+      },
+      {
+        id: 'pending-1',
+        donorId: '3',
+        donorName: 'Green Grocery Store',
+        foodName: 'Fresh Vegetable Bundle',
+        description: 'End-of-day fresh vegetables including carrots, broccoli, bell peppers, and lettuce. All items are in good condition.',
+        quantity: '15',
+        units: 'kg',
+        expirationDate: '2025-08-22',
+        category: 'perishable',
+        photos: ['vegetables.jpg'],
+        pickupDate: '2025-08-21',
+        deliveryMethod: 'pickup',
+        status: 'pending',
+        createdAt: '2025-08-21T06:00:00Z',
+        updatedAt: '2025-08-21T06:00:00Z',
+        ngoId: '2',
+        ngoName: 'Hope Foundation',
+        estimatedMeals: 45,
+        trackingNotes: [
+          'Donation submitted - awaiting approval'
+        ]
+      },
+      {
+        id: 'pending-2',
+        donorId: '4',
+        donorName: 'Daily Bread Bakery',
+        foodName: 'Bakery Surplus',
+        description: 'Fresh baked goods from today - includes 8 loaves of bread, 12 pastries, and 6 muffins.',
+        quantity: '26',
+        units: 'items',
+        expirationDate: '2025-08-21',
+        category: 'perishable',
+        photos: ['bakery_items.jpg'],
+        pickupDate: '2025-08-21',
+        deliveryMethod: 'pickup',
+        status: 'pending',
+        createdAt: '2025-08-20T18:30:00Z',
+        updatedAt: '2025-08-20T18:30:00Z',
+        ngoId: '2',
+        ngoName: 'Hope Foundation',
+        estimatedMeals: 32,
+        trackingNotes: [
+          'Urgent - expires today',
+          'Donation submitted - awaiting approval'
+        ]
+      },
+      {
+        id: 'pending-3',
+        donorId: '5',
+        donorName: 'Community Kitchen',
+        foodName: 'Canned Goods Collection',
+        description: 'Assorted canned goods including soups, vegetables, and fruits. All items are well within expiration date.',
+        quantity: '24',
+        units: 'cans',
+        expirationDate: '2026-02-15',
+        category: 'non-perishable',
+        photos: ['canned_goods.jpg'],
+        pickupDate: '2025-08-22',
+        deliveryMethod: 'pickup',
+        status: 'pending',
+        createdAt: '2025-08-21T09:15:00Z',
+        updatedAt: '2025-08-21T09:15:00Z',
+        ngoId: '2',
+        ngoName: 'Hope Foundation',
+        estimatedMeals: 24,
+        trackingNotes: [
+          'Donation submitted - awaiting approval'
+        ]
+      },
+      {
+        id: 'pending-4',
+        donorId: '6',
+        donorName: 'Local Restaurant',
+        foodName: 'Prepared Meals',
+        description: 'Freshly prepared meals from today\'s service - pasta dishes, salads, and side dishes. All properly refrigerated.',
+        quantity: '12',
+        units: 'portions',
+        expirationDate: '2025-08-21',
+        category: 'cooked',
+        photos: ['prepared_meals.jpg'],
+        pickupDate: '2025-08-21',
+        deliveryMethod: 'pickup',
+        status: 'approved-pending-verification',
+        createdAt: '2025-08-21T14:00:00Z',
+        updatedAt: '2025-08-21T15:30:00Z',
+        ngoId: '2',
+        ngoName: 'Hope Foundation',
+        estimatedMeals: 12,
+        trackingNotes: [
+          'Donation submitted - awaiting approval',
+          'Pre-approved - pending final verification'
+        ]
       }
     ];
   }
