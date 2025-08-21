@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from './ui/dialog';
-import { CheckCircle, XCircle, Clock, Package, Eye, MapPin, Calendar, Plus, Bell } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Package, Eye, MapPin, Calendar, Plus, Bell, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage, User, Donation, StockItem } from '../App';
 
@@ -15,6 +15,45 @@ interface NGODashboardProps {
 }
 
 export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODashboardProps) {
+  // Filter donations for this NGO
+  const ngoDonations = donations.filter(d => d.ngoId === user.id || d.status === 'pending' || d.status === 'approved-pending-verification');
+  const pendingDonations = ngoDonations.filter(d => d.status === 'pending' || d.status === 'approved-pending-verification');
+  const deliveredDonations = ngoDonations.filter(d => d.status === 'delivered' || d.status === 'distributed');
+
+  // Stock alerts
+  const lowStockItems = stockItems.filter(item => item.status === 'low');
+  const expiredItems = stockItems.filter(item => item.status === 'expired');
+
+  // Memoize notification count to prevent flickering
+  const totalNotifications = useMemo(() => {
+    return lowStockItems.length + expiredItems.length + pendingDonations.length;
+  }, [lowStockItems.length, expiredItems.length, pendingDonations.length]);
+
+  const getStatusColor = (status: Donation['status']) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'approved-pending-verification':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'delivered':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'distributed':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'rejected':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  };
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
   const [showPostDonation, setShowPostDonation] = useState(false);
   const [donationForm, setDonationForm] = useState({
@@ -57,39 +96,6 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
       maxCapacity: 40
     }
   ];
-  
-  // Filter donations for this NGO
-  const ngoDonations = donations.filter(d => d.ngoId === user.id || d.status === 'pending' || d.status === 'approved-pending-verification');
-  const pendingDonations = ngoDonations.filter(d => d.status === 'pending' || d.status === 'approved-pending-verification');
-  const deliveredDonations = ngoDonations.filter(d => d.status === 'delivered' || d.status === 'distributed');
-
-  // Stock alerts
-  const lowStockItems = stockItems.filter(item => item.status === 'low');
-  const expiredItems = stockItems.filter(item => item.status === 'expired');
-
-  // Memoize notification count to prevent flickering
-  const totalNotifications = useMemo(() => {
-    return lowStockItems.length + expiredItems.length + pendingDonations.length;
-  }, [lowStockItems.length, expiredItems.length, pendingDonations.length]);
-
-  const getStatusColor = (status: Donation['status']) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'accepted': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
-      case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
-    });
-  };
 
   const handleApproveDonation = (_donationId: string) => {
     // In real app, this would update the database
@@ -365,6 +371,156 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
                   <p className="text-muted-foreground text-xs">No donations waiting for approval</p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Machine Fill & Claims Tracking */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <span className="flex items-center">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Machine Distribution
+                </span>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="text-xs">
+                    4 Active
+                  </Badge>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Hourly Claims Bar Graph */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Hourly Claims Today</span>
+                  <span className="text-xs text-gray-500">Total: 47 claims</span>
+                </div>
+                
+                {/* Thick Bar Graph */}
+                <div className="relative h-28 bg-gradient-to-b from-gray-50 to-white rounded-lg p-4 overflow-hidden">
+                  {/* Chart container with fixed height for bars */}
+                  <div className="relative h-16">
+                    <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between">
+                      {/* 6AM - 2 claims */}
+                      <div className="flex flex-col items-center flex-1">
+                        <div className="text-xs font-semibold text-indigo-600 mb-1">2</div>
+                        <div className="w-6 bg-indigo-500 rounded-t-sm" style={{ height: '12px' }}></div>
+                      </div>
+                      
+                      {/* 7AM - 5 claims */}
+                      <div className="flex flex-col items-center flex-1">
+                        <div className="text-xs font-semibold text-indigo-600 mb-1">5</div>
+                        <div className="w-6 bg-indigo-500 rounded-t-sm" style={{ height: '20px' }}></div>
+                      </div>
+                      
+                      {/* 8AM - 12 claims */}
+                      <div className="flex flex-col items-center flex-1">
+                        <div className="text-xs font-semibold text-indigo-600 mb-1">12</div>
+                        <div className="w-6 bg-indigo-500 rounded-t-sm" style={{ height: '48px' }}></div>
+                      </div>
+                      
+                      {/* 9AM - 8 claims */}
+                      <div className="flex flex-col items-center flex-1">
+                        <div className="text-xs font-semibold text-indigo-600 mb-1">8</div>
+                        <div className="w-6 bg-indigo-500 rounded-t-sm" style={{ height: '32px' }}></div>
+                      </div>
+                      
+                      {/* 10AM - 15 claims (peak) */}
+                      <div className="flex flex-col items-center flex-1">
+                        <div className="text-xs font-semibold text-indigo-600 mb-1">15</div>
+                        <div className="w-6 bg-indigo-500 rounded-t-sm" style={{ height: '60px' }}></div>
+                      </div>
+                      
+                      {/* 11AM - 5 claims */}
+                      <div className="flex flex-col items-center flex-1">
+                        <div className="text-xs font-semibold text-indigo-600 mb-1">5</div>
+                        <div className="w-6 bg-indigo-500 rounded-t-sm" style={{ height: '20px' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Time labels at bottom */}
+                  <div className="flex justify-between mt-2 px-1">
+                    <div className="text-xs text-gray-500 flex-1 text-center">6AM</div>
+                    <div className="text-xs text-gray-500 flex-1 text-center">7AM</div>
+                    <div className="text-xs text-gray-500 flex-1 text-center">8AM</div>
+                    <div className="text-xs text-gray-500 flex-1 text-center">9AM</div>
+                    <div className="text-xs text-gray-500 flex-1 text-center">10AM</div>
+                    <div className="text-xs text-gray-500 flex-1 text-center">11AM</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary Stats */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="text-center p-2 bg-blue-50 rounded-lg">
+                  <div className="text-lg font-bold text-blue-700">47</div>
+                  <div className="text-xs text-blue-600">Total Claims</div>
+                </div>
+                <div className="text-center p-2 bg-orange-50 rounded-lg">
+                  <div className="text-lg font-bold text-orange-700">10AM</div>
+                  <div className="text-xs text-orange-600">Peak Hour</div>
+                </div>
+              </div>
+
+              {/* Machine Status List - Simplified */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm mb-1">Dispenser #2</h4>
+                    <p className="text-xs text-muted-foreground">
+                      12/15 items • Filled: 6:00 AM (3h ago)
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '80%' }}></div>
+                      </div>
+                      <span className="text-xs text-blue-600">5 claims</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm mb-1">Dispenser #1</h4>
+                    <p className="text-xs text-muted-foreground">
+                      3/12 items • Filled: 5:30 AM (3.5h ago)
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '25%' }}></div>
+                      </div>
+                      <span className="text-xs text-blue-600">9 claims</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm mb-1">Dispenser #3</h4>
+                    <p className="text-xs text-muted-foreground">
+                      0/8 items • Last filled: Yesterday 4:00 PM
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-gray-400 h-1.5 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                      <span className="text-xs text-gray-600">0 claims</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <Button 
+                variant="outline" 
+                className="w-full mt-4 text-sm"
+                onClick={() => onNavigate('machine-monitoring')}
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                View Detailed Analytics
+              </Button>
             </CardContent>
           </Card>
 

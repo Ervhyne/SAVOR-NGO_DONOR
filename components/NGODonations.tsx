@@ -413,7 +413,7 @@ export function NGODonations({ onNavigate }: { onNavigate: (page: AppPage) => vo
             <div className="space-y-1 text-xs text-muted-foreground mb-3">
               <div className="flex items-center justify-between">
                 <span>In Stock:</span>
-                <span className="font-medium text-blue-600">{item.availableQuantity} / {item.totalQuantity} {item.units}</span>
+                <span className="font-medium text-blue-600">{item.availableQuantity} {item.units}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <User className="w-3 h-3" />

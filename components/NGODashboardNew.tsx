@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { CheckCircle, XCircle, Clock, Package, AlertTriangle, Eye, MapPin, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Package, AlertTriangle, Eye, MapPin, Calendar, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AppPage, User, Donation, StockItem } from '../App';
 
@@ -320,6 +320,154 @@ export function NGODashboard({ user, donations, stockItems, onNavigate }: NGODas
                   <p className="text-muted-foreground text-xs">No donations waiting for approval</p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Machine Fill & Claims Tracking */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <span className="flex items-center">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Machine Distribution
+                </span>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="text-xs">
+                    4 Active
+                  </Badge>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Claim Activity Line Graph */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Claim Activity Today</span>
+                  <span className="text-xs text-gray-500">9:00 AM</span>
+                </div>
+                
+                {/* Smooth Curved Line Graph */}
+                <div className="relative h-24 bg-gradient-to-b from-gray-50 to-white rounded-lg p-4 overflow-hidden">
+                  {/* Grid lines */}
+                  <div className="absolute inset-0 p-4">
+                    <div className="h-full border-l border-b border-gray-200 relative">
+                      <div className="absolute bottom-0 left-0 w-full h-px bg-gray-200"></div>
+                      <div className="absolute bottom-1/3 left-0 w-full h-px bg-gray-100"></div>
+                      <div className="absolute bottom-2/3 left-0 w-full h-px bg-gray-100"></div>
+                    </div>
+                  </div>
+                  
+                  {/* SVG for smooth curves */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 96" preserveAspectRatio="none">
+                    {/* Single combined activity curve */}
+                    <path
+                      d="M20,75 Q60,65 100,45 T180,40 Q220,35 260,30"
+                      fill="none"
+                      stroke="#6366f1"
+                      strokeWidth="3"
+                      opacity="0.9"
+                    />
+                    
+                    {/* Current time indicator */}
+                    <line
+                      x1="200"
+                      y1="10"
+                      x2="200"
+                      y2="85"
+                      stroke="#6b7280"
+                      strokeWidth="1"
+                      strokeDasharray="2,2"
+                      opacity="0.5"
+                    />
+                  </svg>
+                  
+                  {/* Time labels */}
+                  <div className="absolute bottom-0 left-0 w-full flex justify-between px-4 pb-1">
+                    <span className="text-xs text-gray-400">6AM</span>
+                    <span className="text-xs text-gray-400">8AM</span>
+                    <span className="text-xs text-gray-400">10AM</span>
+                    <span className="text-xs text-gray-400">12PM</span>
+                  </div>
+                  
+                  {/* Legend */}
+                  <div className="absolute top-2 right-4">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span className="text-xs text-gray-500">Claims</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary Stats */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="text-center p-2 bg-blue-50 rounded-lg">
+                  <div className="text-lg font-bold text-blue-700">34</div>
+                  <div className="text-xs text-blue-600">Items Active</div>
+                </div>
+                <div className="text-center p-2 bg-orange-50 rounded-lg">
+                  <div className="text-lg font-bold text-orange-700">2.3h</div>
+                  <div className="text-xs text-orange-600">Avg. Claim Time</div>
+                </div>
+              </div>
+
+              {/* Machine Status List - Simplified */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm mb-1">Dispenser #2</h4>
+                    <p className="text-xs text-muted-foreground">
+                      12/15 items • Filled: 6:00 AM (3h ago)
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '80%' }}></div>
+                      </div>
+                      <span className="text-xs text-blue-600">5 claims</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm mb-1">Dispenser #1</h4>
+                    <p className="text-xs text-muted-foreground">
+                      3/12 items • Filled: 5:30 AM (3.5h ago)
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '25%' }}></div>
+                      </div>
+                      <span className="text-xs text-blue-600">9 claims</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm mb-1">Dispenser #3</h4>
+                    <p className="text-xs text-muted-foreground">
+                      0/8 items • Last filled: Yesterday 4:00 PM
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-gray-400 h-1.5 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                      <span className="text-xs text-gray-600">0 claims</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <Button 
+                variant="outline" 
+                className="w-full mt-4 text-sm"
+                onClick={() => onNavigate('machine-monitoring')}
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                View Detailed Analytics
+              </Button>
             </CardContent>
           </Card>
 
