@@ -328,76 +328,14 @@ export function DonationMarketplace({ onNavigate }: { onNavigate: (page: AppPage
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <div className="flex items-center space-x-2">
-                <Package2 className="w-5 h-5 text-green-600" />
-                <h1 className="text-lg font-semibold text-gray-900">Donation Marketplace</h1>
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">Donations Marketplace</h1>
               </div>
             </div>
-            <p className="text-sm text-gray-600 mt-1 ml-11">
-              Manage your posted donations for beneficiaries
-            </p>
           </div>
         </div>
 
         <div className="p-4">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Active Posts</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {marketplaceDonations.filter(d => d.status === 'active').length}
-                  </p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Low Stock</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {marketplaceDonations.filter(d => d.status === 'low-stock').length}
-                  </p>
-                </div>
-                <AlertTriangle className="w-8 h-8 text-yellow-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Views</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {marketplaceDonations.reduce((sum, d) => sum + d.viewCount, 0)}
-                  </p>
-                </div>
-                <Eye className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Claims</p>
-                  <p className="text-2xl font-bold text-purple-600">
-                    {marketplaceDonations.reduce((sum, d) => sum + d.claimedCount, 0)}
-                  </p>
-                </div>
-                <Users className="w-8 h-8 text-purple-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2 mb-6">
